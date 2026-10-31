@@ -18,9 +18,15 @@ const snapshotValid=validateSnapshot(data);
 const years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[];
 const amountField=(id,label,val,min=1)=>'<label for="'+id+'">'+label+'</label><input id="'+id+'" inputmode="decimal" type="text" value="'+decimal(val)+'" data-min="'+min+'">';
 const metric=(name,value)=>'<div class="metric"><span>'+name+'</span><strong>'+value+'</strong></div>';
+function entryMode(search){
+ const values=new URLSearchParams(search).getAll("avaEntry");
+ if(values.includes("admin"))return "admin";
+ if(values.includes("user"))return "user";
+ return "frontend";
+}
 function projectionChart(p){
  const max=Math.max(...p.balances.map(row=>row[1]));
- return '<figure class="projection"><figcaption>各已提供年度的保單結餘（HK$）</figcaption><p class="chart-note">圖表比例由零開始；只顯示來源已提供的年度。</p><div class="chart-list">'+p.balances.map(([year,multiplier])=>'<div class="chart-row"><span>'+year+' 年</span><span class="chart-track" aria-hidden="true"><span class="chart-fill" style="width:'+(100*multiplier/max)+'%"></span></span><strong>'+money(state.capital*multiplier)+'</strong></div>').join("")+'</div></figure>';
+ return '<figure class="projection"><figcaption>各已提供年度的保單結餘（HK$）</figcaption><p class="chart-note">圖表比例由零開始；只顯示來源已提供的年度。</p><div class="chart-list">'+p.balances.map(([year,multiplier])=>'<button type="button" class="chart-row" data-year="'+year+'" aria-pressed="'+(year===state.term)+'" aria-label="查看 '+year+' 年結餘 HK$ '+money(state.capital*multiplier)+'"><span>'+year+' 年</span><span class="chart-track" aria-hidden="true"><span class="chart-fill" style="width:'+(100*multiplier/max)+'%"></span></span><strong>'+money(state.capital*multiplier)+'</strong></button>').join("")+'</div></figure>';
 }
 function body(){
 const p=plan(state.plan),v=exact(p,state.term),project=v===null?null:state.capital*v;
@@ -31,7 +37,7 @@ case 1:return '<h1>你想點樣安排現有資金？</h1>'+amountField("capital"
 case 2:return '<h1>如果將資金留喺銀行？</h1>'+amountField("bankRate","假設銀行年利率（%）",state.bankRate,0)+amountField("bankYears","銀行情境年期（年）",state.bankYears,1)+'<div class="grid">'+metric("一次性本金","HK$ "+money(state.capital))+metric("假設 "+state.bankYears+" 年後銀行結餘","HK$ "+money(bank))+'</div><p class="note">銀行利率由用戶自行假設，不代表實際銀行報價；此處用複息情境作比較，非產品回報計法。</p>';
 case 3:return '<h1>你希望提取現金，還是留低滾存？</h1><div class="cards">'+data.plans.map(q=>'<button class="choice" data-choice="'+q.id+'" aria-pressed="'+(state.plan===q.id)+'"><strong>'+planLabel(q)+'</strong></button>').join("")+'</div><p class="note">提取比例來自 Sheet，但開始提取年份、計算基數及實際付款日仍須正式條款確認。暫不顯示推算的累計提取額。</p>';
 case 4:return '<h1>指定年度的結餘投影</h1><label for="term">查看保單年度</label><select id="term">'+years.map(y=>'<option value="'+y+'" '+(y===state.term?"selected":"")+'>'+y+' 年</option>').join("")+'</select><div class="grid">'+metric("官方表格結餘倍數",v===null?"此年度未提供":v.toFixed(6)+"×")+metric("一次性投入", "HK$ "+money(state.capital))+metric("預計結餘",project===null?"無此年度數據":"HK$ "+money(project))+metric("結餘與投入的差額（非總回報）",project===null?"無此年度數據":"HK$ "+money(project-state.capital))+'</div>'+projectionChart(p)+'<p class="note">只使用 Google Sheet 指定年份的結餘倍數，不插值、不外推；提取方案之結餘不等同連同歷年提取的總回報。</p>';
-case 5:return '<h1>相同本金，不同安排</h1><div class="table-wrap"><table><thead><tr><th>方案</th><th>結餘倍數</th><th>模擬結餘 HK$</th></tr></thead><tbody>'+data.plans.map(q=>{const x=exact(q,state.term);return '<tr><td>'+planLabel(q)+'</td><td>'+(x===null?"—":x.toFixed(6))+'</td><td>'+(x===null?"未有數據":money(x*state.capital))+'</td></tr>'}).join("")+'</tbody></table></div><p class="note">提取方案的累計已提取金額未計入上述比較；不能直接用此表作總收益排名。</p>';
+case 5:return '<h1>相同本金，不同安排</h1><p>一次性投入 HK$ '+money(state.capital)+'；所列為保單結餘，不包含已提取款項。</p><label for="term">比較保單年度</label><select id="term">'+years.map(y=>'<option value="'+y+'" '+(y===state.term?"selected":"")+'>'+y+' 年</option>').join("")+'</select><div class="table-wrap" tabindex="0" role="region" aria-label="各方案結餘比較表"><table><thead><tr><th>方案</th><th>結餘倍數</th><th>模擬結餘 HK$</th></tr></thead><tbody>'+data.plans.map(q=>{const x=exact(q,state.term);return '<tr><td>'+planLabel(q)+'</td><td>'+(x===null?"—":x.toFixed(6))+'</td><td>'+(x===null?"未有數據":money(x*state.capital))+'</td></tr>'}).join("")+'</tbody></table></div><p class="note">提取方案的累計已提取金額未計入上述比較；不能直接用此表作總收益排名。</p>';
 default:return '<h1>下一步：選擇合適安排</h1><div class="grid">'+metric("一次投入","HK$ "+money(state.capital))+metric("所選方案",planLabel(p))+metric("保單年度",state.term+" 年")+metric("該年結餘",project===null?"未有數據":"HK$ "+money(project))+metric("銀行年利率假設",decimal(state.bankRate)+"%")+metric("銀行情境年期",state.bankYears+" 年")+'</div><p>客人關注：'+(state.goals.length?state.goals.map(i=>goalLabels[i]).join('、'):'尚未選擇')+'</p><p>可以同客人討論現金流需求、資金動用時間、承受能力及正式產品限制。</p><button class="secondary" id="print">列印／儲存 PDF</button><p class="note">本展示未包含保證／非保證回報分類、費用、退保限制或利益說明，正式使用前必須確認。</p>';
 }}
 function validateCurrent(){
@@ -56,12 +62,18 @@ function bindNumber(field,key,min,max,places){
   field.addEventListener("input",update);
 }
 function render(){
+const entry=entryMode(window.location.search);
+if(entry!=="frontend"){
+ $("#mode").textContent="功能未開放";$("#steps").innerHTML="";
+ $("#app").innerHTML='<h1>此功能尚未開放</h1><p>'+(entry==="admin"?"官方資料管理尚未啟用，網址本身不提供管理權限。":"個人內容編輯尚未啟用，現時無法儲存修改。")+'</p><a class="secondary entry-link" href="./">返回銷售展示</a>';return;
+}
 if(!snapshotValid){$("#mode").textContent="資料不可用";$("#steps").innerHTML="";$("#app").innerHTML='<h1>資料暫時不可用</h1><p>資料快照未通過檢查，投影已停用。請聯絡管理人員確認資料來源。</p>';return}
 $("#mode").textContent="銷售展示 · 原型";
 $("#steps").innerHTML=names.map((n,i)=>'<button data-step="'+i+'" '+(i===state.step?'aria-current="step"':"")+">"+(i+1)+" "+n+"</button>").join("");
 $("#app").innerHTML=body()+'<div class="actions"><button class="secondary" id="back" '+(state.step===0?"disabled":"")+'>上一頁</button><button class="primary" id="next" '+(state.step===6?"disabled":"")+'>下一頁</button></div>';
 document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{if(!validateCurrent())return;state.step=+b.dataset.step;render()});
 document.querySelectorAll("[data-goal]").forEach(b=>b.onclick=()=>{const i=+b.dataset.goal;state.goals=state.goals.includes(i)?state.goals.filter(x=>x!==i):[...state.goals,i];b.setAttribute("aria-pressed",state.goals.includes(i))});
+document.querySelectorAll("[data-year]").forEach(b=>b.onclick=()=>{state.term=Number(b.dataset.year);render();document.querySelector(`[data-year="${state.term}"]`)?.focus()});
 document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.choice;render()});
 $("#back").onclick=()=>{if(!validateCurrent())return;state.step--;render()};$("#next").onclick=()=>{if(!validateCurrent())return;state.step++;render()};
 const cap=$("#capital");if(cap)bindNumber(cap,"capital",1,1000000000000,2);

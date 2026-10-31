@@ -2,3 +2,5 @@
 .projection{margin:24px 0}.projection figcaption{font-weight:700}.chart-note{font-size:14px;color:#4b5a6a}.chart-list{display:grid;gap:8px}.chart-row{display:grid;grid-template-columns:4.5em minmax(0,1fr) minmax(7em,auto);align-items:center;gap:10px;font-variant-numeric:tabular-nums}.chart-row strong{text-align:right}.chart-track{height:14px;background:#e3edf6;border-radius:8px}.chart-fill{display:block;height:100%;background:#1765a8;border-radius:8px}@media(max-width:400px){.chart-row{font-size:13px;gap:6px}}
 
 @media print{body{background:#fff}.shell{padding:0}header{margin-bottom:20px}.panel{border:0;padding:0}.panel #print{display:none}.metric{break-inside:avoid}footer{margin-top:20px;color:#333}}
+
+.chart-row{min-height:44px;width:100%;border:1px solid transparent;background:transparent;color:inherit;text-align:left;padding:6px;cursor:pointer}.chart-row[aria-pressed=true]{border-color:#1765a8;border-radius:8px;background:#edf6ff}.entry-link{display:inline-flex;align-items:center;text-decoration:none}

@@ -13,6 +13,7 @@ const data = JSON.parse(fs.readFileSync('data/official-snapshot.json', 'utf8'));
 const source = fs.readFileSync('src/main.js', 'utf8')
   .replace(/^import .*\n/, '').replace(/\nrender\(\);\s*$/, '');
 vm.runInNewContext(source + `
+  if (entryMode('?avaEntry=frontend') !== 'frontend' || entryMode('?avaEntry=admin') !== 'admin' || entryMode('?avaEntry=user') !== 'user' || entryMode('?avaEntry=frontend&avaEntry=admin') !== 'admin') throw Error('unsafe entry routing');
   if (!validateSnapshot(data)) throw Error('valid snapshot rejected');
   const broken = JSON.parse(JSON.stringify(data)); broken.plans[0].balances[0][1] = -1;
   if (validateSnapshot(broken)) throw Error('invalid multiplier accepted');
@@ -27,7 +28,7 @@ vm.runInNewContext(source + `
   state.goals = [1]; state.bankRate = 1.5; state.bankYears = 10; state.step = 6;
   if (!body().includes('客人關注：提取現金流')) throw Error('goal missing from summary');
   if (!body().includes('1.5%') || !body().includes('10 年')) throw Error('bank assumptions missing from summary');
-`, {data, document: {}, window: {}});
+`, {data, document: {}, window: {}, URLSearchParams});
 '''
         subprocess.run(['node', '-e', script], cwd=ROOT, check=True)
 

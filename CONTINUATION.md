@@ -1,6 +1,9 @@
 # PR #1 continuation checklist
 
-Status: prototype; not ready for final review. Continue on
+Status: prototype; not ready for final review. The frontend now rejects direct
+User / Admin entries with an unsupported message; this does not implement or
+prove those capabilities. The projection chart supports year selection and the
+comparison page lets the user select a shared policy year. Continue on
 `codex/phase1-one-time-saving`, after fetching PR #1 and checking for concurrent
 writers. Do not merge or deploy without Product Owner approval.
 

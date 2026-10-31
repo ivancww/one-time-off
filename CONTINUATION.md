@@ -1,8 +1,6 @@
 # PR #1 continuation checklist
 
-Status: prototype; not ready for final review. The frontend now rejects direct
-User / Admin entries with an unsupported message; this does not implement or
-prove those capabilities. The projection chart supports year selection and the
+Status: prototype; not ready for final review. User entry supports two explicitly user-owned notes with batch IndexedDB save, readback and validated JSON import/export; this is not complete Unified User Edit. Admin remains unsupported and is not authorized by URL parameters. The projection chart supports year selection and the
 comparison page lets the user select a shared policy year. Continue on
 `codex/phase1-one-time-saving`, after fetching PR #1 and checking for concurrent
 writers. Do not merge or deploy without Product Owner approval.
@@ -10,7 +8,7 @@ writers. Do not merge or deploy without Product Owner approval.
 - [ ] Obtain an authorized, documented official-data interface and version / freshness contract; validate and cache data with explicit stale and offline behavior. The bundled manual snapshot has structural checks but no independently verified current version or live refresh.
 - [ ] Verify the official withdrawal start, basis, payment timing, guarantees, charges and policy provisions. Keep withdrawal cash-flow and combined-value calculations disabled until verified.
 - [ ] Implement and verify current Mother Standard frontend, User Edit (including the approved Preview / Save Local contract), Admin and central authentication boundaries. Do not interpret an entry parameter as authentication.
-- [ ] Implement permitted in-place User Edit, batch IndexedDB persistence, backup and restore with protected official data and invalid-import handling.
+- [ ] Complete in-place User Edit, durable drafts and approved page customization; audit and extend the current two-note IndexedDB and backup/restore implementation, including failure and migration tests.
 - [ ] Implement and test app-shell update and offline behavior according to the current Mother Standard; do not present a stale snapshot as current.
 - [ ] Complete customer flow, accessible navigation, print/PDF and responsive presentation; verify true device, WebView and installed-PWA behavior.
 - [ ] Complete financial precision, source failure, security, accessibility and browser regression tests and review screenshots across the required device matrix.

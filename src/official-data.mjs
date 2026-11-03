@@ -13,19 +13,19 @@ export function validEnvelope(value,now=Date.now()){
 // Configure an authenticated same-origin backend before enabling live reads.
 export async function loadOfficialData({snapshot,endpoint=null,cache=null,fetcher=globalThis.fetch,now=Date.now()}={}){
  if(!validDataset(snapshot))throw Error('Invalid bundled snapshot');
- let error=null;
+ let error=null, trusted=false;
  if(endpoint){
   try{
    const target=new URL(endpoint,globalThis.location?.href);
-   if(!globalThis.location || target.origin!==globalThis.location.origin || target.protocol!=='https:')throw Error('Endpoint must be same-origin HTTPS');
+   if(!globalThis.location || target.origin!==globalThis.location.origin || target.protocol!=='https:')throw Error('Endpoint must be same-origin HTTPS');trusted=true;
    const response=await fetcher(target.href,{credentials:'same-origin',cache:'no-store',redirect:'error',headers:{Accept:'application/json'}});
    if(!response.ok)throw Error('Official source unavailable');
    const data=await response.json();if(!validEnvelope(data,now))throw Error('Invalid official response');
    try{await cache?.write(data)}catch(_){} // a cache failure must not corrupt a valid response
-   return {data:data.data,mode:'live',revision:data.revision,publishedAt:data.publishedAt};
+   return {data:data.data,mode:'live',revision:data.revision,publishedAt:data.publishedAt,stale:now-Date.parse(data.publishedAt)>7*86400000};
   }catch(e){error=e}
  }
  // Only consider cached live data if this deployment has an approved endpoint.
- if(endpoint && cache){try{const value=await cache.read();if(validEnvelope(value,now))return {data:value.data,mode:'cached',revision:value.revision,publishedAt:value.publishedAt,error:!!error}}catch(_){}}
+ if(trusted && cache){try{const value=await cache.read();if(validEnvelope(value,now))return {data:value.data,mode:'cached',revision:value.revision,publishedAt:value.publishedAt,stale:now-Date.parse(value.publishedAt)>7*86400000,error:!!error}}catch(_){}}
  return {data:snapshot,mode:'snapshot',revision:null,publishedAt:null,error:!!error};
 }

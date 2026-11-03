@@ -1,35 +1,26 @@
 # PR #1 continuation checklist
 
-Status: prototype; not ready for final review. User entry supports two explicitly user-owned notes with batch IndexedDB save, readback and validated JSON import/export; this is not complete Unified User Edit. Admin remains unsupported and is not authorized by URL parameters. The projection chart supports year selection and the
-comparison page lets the user select a shared policy year. Continue on
-`codex/phase1-one-time-saving`, after fetching PR #1 and checking for concurrent
-writers. Do not merge or deploy without Product Owner approval.
+Status: draft, not ready for Final Review. Continue this PR and branch; no merge
+or deployment without Product Owner approval. Do not modify the source Sheet.
 
-- [ ] Obtain an authorized, documented official-data interface and version / freshness contract; validate and cache data with explicit stale and offline behavior. The bundled manual snapshot has structural checks but no independently verified current version or live refresh.
-- [ ] Verify the official withdrawal start, basis, payment timing, guarantees, charges and policy provisions. Keep withdrawal cash-flow and combined-value calculations disabled until verified.
-- [ ] Implement and verify current Mother Standard frontend, User Edit (including the approved Preview / Save Local contract), Admin and central authentication boundaries. Do not interpret an entry parameter as authentication.
-- [ ] Complete in-place User Edit, durable drafts and approved page customization; audit and extend the current two-note IndexedDB and backup/restore implementation, including failure and migration tests.
-- [ ] Implement and test app-shell update and offline behavior according to the current Mother Standard; do not present a stale snapshot as current.
-- [ ] Complete customer flow, accessible navigation, print/PDF and responsive presentation; verify true device, WebView and installed-PWA behavior.
-- [ ] Complete financial precision, source failure, security, accessibility and browser regression tests and review screenshots across the required device matrix.
-- [ ] Verify GitHub Actions for the final PR HEAD; GitHub API access was forbidden in this environment. Check PR state and other writers before pushing.
-- [ ] Review against the then-current merged Mother Standard and Design System. Confirm Product Owner review before merge or deploy.
-
-The API-billed Codex runner draft is not enabled by this task. No future
-background execution is claimed.
-
-## Current User Edit checkpoint
-Seven sales-page headings can be edited in their original position and saved in
-one IndexedDB write; v1 two-note backups are accepted as a v2 draft and the old
-stored record is migrated in memory without overwriting it until Save. Official
-values and disclosures remain read-only. Custom page insertion, ordering and
-visibility are not implemented. Browser workflow runs simulated viewports only;
-installed PWA, WebView and physical devices remain unverified. PWA shell updates and authorized live source remain open. The adapter and a separate IndexedDB cache interface are wired into startup; endpoint is disabled, so only the bundled snapshot is currently used. Cache/live behavior still requires browser integration tests with an approved endpoint.
-
-## Next User Edit iteration
-The v3 local presentation schema adds three allowlisted explanatory paragraphs
-and user-owned text pages with position, ordering within a position, visibility,
-and deletion. Official pages stay required. v1/v2 records import through
-validated migration; unchanged saved data is retained until an explicit save.
-Review browser evidence for the exact HEAD. Media pages, complete classification,
-PWA shell update, real-device QA and endpoint-backed cache remain outstanding.
+- [ ] Verify official withdrawal start, basis, timing, guarantees, charges and
+  policy provisions. Cash-flow amounts remain disabled without authority.
+- [ ] Authorize and validate a server-side official source, including freshness
+  and origin/authentication. Live sync remains disabled. The IndexedDB cache
+  interface exists; test real endpoint and persistent-cache failure modes.
+- [ ] Finish and audit Unified User Edit across every eligible field. Seven
+  headings and three sales explanations are editable in place. User-owned text
+  pages support placement, ordering at the same position, visibility and
+  deletion. Official pages, numerical values and disclosures remain protected.
+  v1 and v2 data migrate to v3; imports are drafts until Save Local. Media pages,
+  full migration/failure testing and field classification remain incomplete.
+- [ ] Browser PWA lifecycle tests cover service-worker install, offline launch,
+  shell content refresh and IndexedDB preservation using simulated deployment.
+  Verify installed PWA, multiple tabs/dirty drafts, service-worker script update,
+  physical iPad/Android and host WebViews before claiming the full update gate.
+- [ ] Complete customer flow, accessibility, responsive presentation, return to
+  AVA and independent entry/auth integration. Browser viewports do not establish
+  physical-device or live-deployment compliance.
+- [ ] Verify latest HEAD tests, screenshots, security and accessibility checks.
+  Record remaining limitations and request Owner review only when unblocked
+  implementation and QA are complete.

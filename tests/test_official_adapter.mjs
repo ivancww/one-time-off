@@ -10,8 +10,8 @@ assert(!validEnvelope({...envelope,schemaVersion:2},now));assert(!validEnvelope(
 assert.equal((await loadOfficialData({snapshot,now})).mode,'snapshot');
 globalThis.location={href:'https://example.test/app/',origin:'https://example.test'};
 let cached;const cache={write:async x=>{cached=x},read:async()=>cached};
-const live=await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>({ok:true,json:async()=>envelope})});assert.equal(live.mode,'live');
+const live=await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>({ok:true,json:async()=>envelope})});assert.equal(live.mode,'live');assert.equal(live.stale,false);const old=await loadOfficialData({snapshot,endpoint:'/official',cache,now:now+8*86400000,fetcher:async()=>({ok:true,json:async()=>envelope})});assert.equal(old.stale,true);
 const offline=await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>{throw Error('offline')}});assert.equal(offline.mode,'cached');
 cached=bad;assert.equal((await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>{throw Error('offline')}})).mode,'snapshot');
-assert.equal((await loadOfficialData({snapshot,endpoint:'https://evil.test/data',now,fetcher:async()=>{throw Error('must not call')}})).mode,'snapshot');
+cached=envelope;assert.equal((await loadOfficialData({snapshot,endpoint:'https://evil.test/data',cache,now,fetcher:async()=>{throw Error('must not call')}})).mode,'snapshot');
 console.log('official adapter validation and fallback: PASS');

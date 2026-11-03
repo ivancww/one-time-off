@@ -28,3 +28,9 @@ and deployment; client validation and browser storage do not establish official
 provenance. The adapter is wired to startup with a separate IndexedDB cache interface; the UI currently uses only the labeled snapshot. No live endpoint is configured or contacted.
 
 Approved endpoint, source authenticity, live and cached user-facing states, security tests and browser/offline tests remain outstanding. Current endpoint-disabled startup does not exercise the persistent cache.
+
+The adapter marks a live or cached envelope older than seven days with a prompt
+to verify it. This is an app warning threshold, not a verified product update
+schedule, expiry date, or proof that newer data exists. Snapshot freshness is
+unknown. Endpoint activation still requires an approved authenticated backend;
+local cache and client schema checks alone cannot establish provenance.

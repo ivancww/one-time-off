@@ -8,3 +8,5 @@
 textarea{width:100%;min-height:88px;padding:10px 12px;border:1px solid #bac8da;border-radius:10px;font:inherit;resize:vertical}textarea:focus-visible{outline:3px solid #73b1ed;outline-offset:2px}.user-actions{margin-top:20px}.user-actions button{margin:4px 4px 4px 0}
 .title-edit{display:block;color:#52657a;font-size:14px;margin:0 0 4px}.title-input{font-size:clamp(24px,3vw,34px);font-weight:700;line-height:1.2;margin:0 0 16px;min-height:48px;border:1px dashed #1765a8;background:#fff}
 .custom-text{white-space:pre-wrap}.user-actions input[type=checkbox],#custom-visible{width:auto;min-height:24px;min-width:24px;vertical-align:middle}
+
+.inline-edit{outline:1px dashed #1765a8;outline-offset:4px;border-radius:2px;white-space:pre-wrap}.inline-edit:focus-visible{outline:3px solid #73b1ed;outline-offset:4px}

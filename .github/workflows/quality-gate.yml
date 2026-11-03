@@ -1,0 +1,24 @@
+name: AVA One-Time Saving Quality Gate
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [codex/phase1-one-time-saving]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  data-and-safety:
+    name: Validate sheet snapshot and safety invariants
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run contract checks
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Ensure no production/credential secrets in tracked files
+        shell: bash
+        run: |
+          ! git grep -nE '(-----BEGIN (RSA|OPENSSH|PRIVATE) KEY-----|AIza[0-9A-Za-z_-]{30,}|ghp_[A-Za-z0-9]{30,})' -- ':!*.md'

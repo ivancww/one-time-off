@@ -87,6 +87,7 @@ function bindNumber(field,key,min,max,places){
 }
 function render(){
 const entry=entryMode(window.location.search);
+const returnLink=$("#return-ava");if(returnLink)returnLink.href="https://ivancww.github.io/avaplatform/"+(entry==="user"?"?avaSurface=user":"");
 if(entry==="admin"){
  $("#mode").textContent="功能未開放";$("#steps").innerHTML="";
  $("#app").innerHTML='<h1>此功能尚未開放</h1><p>'+(entry==="admin"?"官方資料管理尚未啟用，網址本身不提供管理權限。":"個人內容編輯尚未啟用，現時無法儲存修改。")+'</p><a class="secondary entry-link" href="./">返回銷售展示</a>';return;

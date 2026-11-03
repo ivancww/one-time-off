@@ -6,3 +6,4 @@
 .chart-row{min-height:44px;width:100%;border:1px solid transparent;background:transparent;color:inherit;text-align:left;padding:6px;cursor:pointer}.chart-row[aria-pressed=true]{border-color:#1765a8;border-radius:8px;background:#edf6ff}.entry-link{display:inline-flex;align-items:center;text-decoration:none}
 
 textarea{width:100%;min-height:88px;padding:10px 12px;border:1px solid #bac8da;border-radius:10px;font:inherit;resize:vertical}textarea:focus-visible{outline:3px solid #73b1ed;outline-offset:2px}.user-actions{margin-top:20px}.user-actions button{margin:4px 4px 4px 0}
+.title-edit{display:block;color:#52657a;font-size:14px;margin:0 0 4px}.title-input{font-size:clamp(24px,3vw,34px);font-weight:700;line-height:1.2;margin:0 0 16px;min-height:48px;border:1px dashed #1765a8;background:#fff}

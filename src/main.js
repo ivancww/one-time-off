@@ -4,13 +4,18 @@ const goalLabels=["資金保留與流動性","提取現金流","長期資產累�
 const state={step:0,capital:500000,term:20,plan:"rollover",bankRate:1.5,bankYears:20,goals:[]};
 const $=s=>document.querySelector(s);
 // Only these user-owned notes are editable. Financial facts and disclosures are not.
-const userPages=[0,6], userKeys=["introNote","summaryNote"];
-let userSaved={introNote:"",summaryNote:""}, userDraft={...userSaved}, userReady=false, userError="", userDirty=false, userSaving=false;
+const userPages=[0,1,2,3,4,5,6], userKeys=["introNote","summaryNote"];
+const blankUser=()=>({introNote:"",summaryNote:"",titles:Array(7).fill("")});
+const cloneUser=value=>({introNote:value.introNote,summaryNote:value.summaryNote,titles:[...value.titles]});
+let userSaved=blankUser(), userDraft=cloneUser(userSaved), userReady=false, userError="", userDirty=false, userSaving=false;
 const escapeText=value=>String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function validUserData(value){return !!value && typeof value==="object" && !Array.isArray(value) && Object.keys(value).sort().join(",")==="introNote,summaryNote" && userKeys.every(k=>typeof value[k]==="string" && value[k].length<=2000)}
+function validLegacyUserData(value){return !!value && typeof value==="object" && !Array.isArray(value) && Object.keys(value).sort().join(",")==="introNote,summaryNote" && userKeys.every(k=>typeof value[k]==="string" && value[k].length<=2000)}
+function validUserData(value){return !!value && typeof value==="object" && !Array.isArray(value) && Object.keys(value).sort().join(",")==="introNote,summaryNote,titles" && userKeys.every(k=>typeof value[k]==="string" && value[k].length<=2000) && Array.isArray(value.titles) && value.titles.length===7 && value.titles.every(x=>typeof x==="string" && x.length<=120)}
+function migrateUserData(value){if(validUserData(value))return cloneUser(value);if(validLegacyUserData(value))return {...blankUser(),introNote:value.introNote,summaryNote:value.summaryNote};throw Error("invalid user data")}
+const userChanged=()=>JSON.stringify(userDraft)!==JSON.stringify(userSaved);
 function openUserDb(){return new Promise((resolve,reject)=>{const request=indexedDB.open("ava-one-time-off-user",1);request.onupgradeneeded=()=>{request.result.createObjectStore("content")};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);request.onblocked=()=>reject(new Error("storage blocked"))})}
 async function readUserData(){const db=await openUserDb();try{return await new Promise((resolve,reject)=>{const tx=db.transaction("content","readonly"),request=tx.objectStore("content").get("saved");request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}}
-async function writeUserData(value){if(!validUserData(value))throw Error("invalid user data");const db=await openUserDb();try{await new Promise((resolve,reject)=>{const tx=db.transaction("content","readwrite");tx.objectStore("content").put(value,"saved");tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}const result=await readUserData();if(!validUserData(result)||userKeys.some(k=>result[k]!==value[k]))throw Error("readback failed")}
+async function writeUserData(value){if(!validUserData(value))throw Error("invalid user data");const db=await openUserDb();try{await new Promise((resolve,reject)=>{const tx=db.transaction("content","readwrite");tx.objectStore("content").put(value,"saved");tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}const result=await readUserData();if(!validUserData(result)||JSON.stringify(result)!==JSON.stringify(value))throw Error("readback failed")}
 function userNote(){const key=state.step===0?"introNote":state.step===6?"summaryNote":null;if(!key)return "";const value=(entryMode(window.location.search)==="user"?userDraft:userSaved)[key];if(entryMode(window.location.search)==="user")return '<label for="user-note">個人補充說明（不屬於官方產品資料）</label><textarea id="user-note" maxlength="2000" rows="3">'+escapeText(value)+'</textarea>';return value?'<div class="note"><strong>個人補充說明（不屬於官方產品資料）</strong><p>'+escapeText(value)+'</p></div>':""}
 
 const money=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:2});
@@ -79,22 +84,27 @@ if(entry==="admin"){
 }
 if(!snapshotValid){$("#mode").textContent="資料不可用";$("#steps").innerHTML="";$("#app").innerHTML='<h1>資料暫時不可用</h1><p>資料快照未通過檢查，投影已停用。請聯絡管理人員確認資料來源。</p>';return}
 if(entry==="user" && !userReady){$("#mode").textContent="個人編輯";$("#steps").innerHTML="";$("#app").innerHTML='<h1>個人編輯不可用</h1><p>無法讀取本機資料；請檢查瀏覽器儲存設定。</p><a href="./">返回銷售展示</a>';return}
-if(entry==="user" && !userPages.includes(state.step))state.step=0;
+
 $("#mode").textContent=entry==="user"?"個人編輯 · 本機資料":userReady?"銷售展示 · 原型":"銷售展示 · 個人資料不可用";
 $("#steps").innerHTML=names.map((n,i)=>entry==="user" && !userPages.includes(i)?"":'<button data-step="'+i+'" '+(i===state.step?'aria-current="step"':"")+">"+(i+1)+" "+n+"</button>").join("");
-$("#app").innerHTML=body()+userNote()+(entry==="user"?'<div class="user-actions"><p role="status" id="user-status">'+escapeText(userError)+'</p><button id="save-user" class="primary">儲存至本機</button> <button id="cancel-user" class="secondary">取消修改</button> <button id="export-user" class="secondary">匯出已儲存內容</button> <label for="import-user">匯入個人內容（先作草稿）</label><input id="import-user" type="file" accept="application/json,.json"><p class="note">只儲存個人補充說明；官方數據及產品條款不能編輯。請勿輸入客戶個人資料。</p></div>':'')+'<div class="actions"><button class="secondary" id="back" '+(state.step===0?"disabled":"")+'>上一頁</button><button class="primary" id="next" '+(state.step===6?"disabled":"")+'>下一頁</button></div>';
+const renderedBody=body().replace(/<h1>([^<]*)<\/h1>/,(_,original)=>{
+ const chosen=(entry==="user"?userDraft:userSaved).titles[state.step]||original;
+ return entry==="user"?'<label class="title-edit" for="page-title">編輯本頁標題</label><input class="title-input" id="page-title" maxlength="120" value="'+escapeText(chosen)+'">':'<h1>'+escapeText(chosen)+'</h1>';
+});
+$("#app").innerHTML=renderedBody+userNote()+(entry==="user"?'<div class="user-actions"><p role="status" id="user-status">'+escapeText(userError)+'</p><button id="save-user" class="primary">儲存至本機</button> <button id="cancel-user" class="secondary">取消修改</button> <button id="export-user" class="secondary">匯出已儲存內容</button> <label for="import-user">匯入個人內容（先作草稿）</label><input id="import-user" type="file" accept="application/json,.json"><p class="note">可修改各頁標題及個人補充；官方數據及產品條款不能編輯。請勿輸入客戶個人資料。</p></div>':'')+'<div class="actions"><button class="secondary" id="back" '+(state.step===0?"disabled":"")+'>上一頁</button><button class="primary" id="next" '+(state.step===6?"disabled":"")+'>下一頁</button></div>';
 document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{if(!validateCurrent())return;state.step=+b.dataset.step;render()});
 document.querySelectorAll("[data-goal]").forEach(b=>b.onclick=()=>{const i=+b.dataset.goal;state.goals=state.goals.includes(i)?state.goals.filter(x=>x!==i):[...state.goals,i];b.setAttribute("aria-pressed",state.goals.includes(i))});
 document.querySelectorAll("[data-year]").forEach(b=>b.onclick=()=>{state.term=Number(b.dataset.year);render();document.querySelector(`[data-year="${state.term}"]`)?.focus()});
 document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.choice;render()});
-$("#back").onclick=()=>{if(!validateCurrent())return;state.step=entry==="user"?0:state.step-1;render()};$("#next").onclick=()=>{if(!validateCurrent())return;state.step=entry==="user"?6:state.step+1;render()};
+$("#back").onclick=()=>{if(!validateCurrent())return;state.step=state.step-1;render()};$("#next").onclick=()=>{if(!validateCurrent())return;state.step=state.step+1;render()};
 if(entry==="user"){
  const note=$("#user-note"),key=state.step===0?"introNote":"summaryNote";
- note.oninput=()=>{userDraft[key]=note.value;userDirty=userKeys.some(k=>userDraft[k]!==userSaved[k])};
- $("#save-user").onclick=async()=>{if(userSaving)return;userSaving=true;const snapshot={...userDraft};try{await writeUserData(snapshot);userSaved=snapshot;userDirty=userKeys.some(k=>userDraft[k]!==userSaved[k]);userError=userDirty?"已儲存較早版本，較新的修改仍未儲存。":"已儲存並核對本機資料。"}catch(e){userError="儲存失敗，草稿仍保留；請重試。"}finally{userSaving=false}render()};
- $("#cancel-user").onclick=()=>{if(userDirty && !window.confirm("放棄未儲存的修改？"))return;userDraft={...userSaved};userDirty=false;userError="已放棄草稿。";render()};
- $("#export-user").onclick=()=>{const blob=new Blob([JSON.stringify({format:"ava-one-time-off-user",version:1,content:userSaved},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="ava-one-time-off-user.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
- $("#import-user").onchange=async e=>{try{const file=e.target.files[0];if(!file || file.size>20000)throw Error();const v=JSON.parse(await file.text());if(!v || v.format!=="ava-one-time-off-user" || v.version!==1 || !validUserData(v.content))throw Error();if(userDirty && !window.confirm("以匯入內容取代未儲存草稿？")){e.target.value="";return}userDraft={...v.content};userDirty=userKeys.some(k=>userDraft[k]!==userSaved[k]);userError="匯入草稿後，請檢查並儲存至本機。"}catch(err){userError="匯入失敗；原有內容未變。"}render()};
+ if(note)note.oninput=()=>{userDraft[key]=note.value;userDirty=userChanged()};
+ $("#page-title").oninput=e=>{userDraft.titles[state.step]=e.target.value;userDirty=userChanged()};
+ $("#save-user").onclick=async()=>{if(userSaving)return;userSaving=true;const snapshot=cloneUser(userDraft);try{await writeUserData(snapshot);userSaved=snapshot;userDirty=userChanged();userError=userDirty?"已儲存較早版本，較新的修改仍未儲存。":"已儲存並核對本機資料。"}catch(e){userError="儲存失敗，草稿仍保留；請重試。"}finally{userSaving=false}render()};
+ $("#cancel-user").onclick=()=>{if(userDirty && !window.confirm("放棄未儲存的修改？"))return;userDraft=cloneUser(userSaved);userDirty=false;userError="已放棄草稿。";render()};
+ $("#export-user").onclick=()=>{const blob=new Blob([JSON.stringify({format:"ava-one-time-off-user",version:2,content:userSaved},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="ava-one-time-off-user.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ $("#import-user").onchange=async e=>{try{const file=e.target.files[0];if(!file || file.size>20000)throw Error();const v=JSON.parse(await file.text());if(!v || v.format!=="ava-one-time-off-user" || (v.version!==1 && v.version!==2) || (v.version===1?!validLegacyUserData(v.content):!validUserData(v.content)))throw Error();if(userDirty && !window.confirm("以匯入內容取代未儲存草稿？")){e.target.value="";return}userDraft=migrateUserData(v.content);userDirty=userChanged();userError="匯入草稿後，請檢查並儲存至本機。"}catch(err){userError="匯入失敗；原有內容未變。"}render()};
 }
 const cap=$("#capital");if(cap)bindNumber(cap,"capital",1,1000000000000,2);
 const rate=$("#bankRate");if(rate)bindNumber(rate,"bankRate",0,100,4);
@@ -104,5 +114,5 @@ const print=$("#print");if(print)print.onclick=()=>window.print();
 }
 if(typeof window!=="undefined" && typeof window.addEventListener==="function" && typeof document!=="undefined"){
  window.addEventListener("beforeunload",e=>{if(userDirty){e.preventDefault();e.returnValue=""}});
- (async()=>{try{const saved=await readUserData();if(saved!==undefined && !validUserData(saved))throw Error("invalid saved data");if(saved)userSaved={...saved};userDraft={...userSaved};userReady=true}catch(e){userReady=false}render()})();
+ (async()=>{try{const saved=await readUserData();if(saved!==undefined)userSaved=migrateUserData(saved);userDraft=cloneUser(userSaved);userReady=true}catch(e){userReady=false}render()})();
 }

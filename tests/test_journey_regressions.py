@@ -14,7 +14,10 @@ const source = fs.readFileSync('src/main.js', 'utf8')
   .replace(/^import .*\n/, '').replace(/\nrender\(\);\s*$/, '');
 vm.runInNewContext(source + `
   if (entryMode('?avaEntry=frontend') !== 'frontend' || entryMode('?avaEntry=admin') !== 'admin' || entryMode('?avaEntry=user') !== 'user' || entryMode('?avaEntry=frontend&avaEntry=admin') !== 'admin') throw Error('unsafe entry routing');
-  if (!validUserData({introNote:'one',summaryNote:'two'})) throw Error('valid notes rejected');
+  if (!validLegacyUserData({introNote:'one',summaryNote:'two'})) throw Error('legacy notes rejected');
+  const migrated=migrateUserData({introNote:'one',summaryNote:'two'});
+  if (!validUserData(migrated) || migrated.introNote!=='one' || migrated.titles.length!==7) throw Error('legacy migration failed');
+  if (validUserData({...migrated,official:1}) || validUserData({...migrated,titles:['x']})) throw Error('invalid v2 accepted');
   if (validUserData({introNote:'one',summaryNote:'two',official:1}) || validUserData({introNote:'x'.repeat(2001),summaryNote:''})) throw Error('unsafe note accepted');
   if (escapeText('<img onerror=alert(1)>').includes('<')) throw Error('markup not escaped');
   if (!validateSnapshot(data)) throw Error('valid snapshot rejected');

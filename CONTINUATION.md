@@ -17,3 +17,12 @@ writers. Do not merge or deploy without Product Owner approval.
 
 The API-billed Codex runner draft is not enabled by this task. No future
 background execution is claimed.
+
+## Current User Edit checkpoint
+Seven sales-page headings can be edited in their original position and saved in
+one IndexedDB write; v1 two-note backups are accepted as a v2 draft and the old
+stored record is migrated in memory without overwriting it until Save. Official
+values and disclosures remain read-only. Custom page insertion, ordering and
+visibility are not implemented. Browser workflow runs simulated viewports only;
+installed PWA, WebView and physical devices remain unverified. PWA shell updates,
+live data adapter integration and persistent official-data caching remain open.

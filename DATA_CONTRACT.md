@@ -13,7 +13,7 @@ The current app uses an explicitly labeled **manual verified snapshot**, not liv
 
 The current Phase 1 UI is a sales-flow prototype, **not Mother Standard compliance sign-off**: Unified User Edit, proper IndexedDB persistence, frontend/user/admin entry boundary, approved official/live integration, PWA updates and comprehensive cross-device QA remain pending.
 
-## Adapter foundation (not connected to the customer journey)
+## Adapter foundation and customer-journey integration
 
 `src/official-data.mjs` defines a fail-closed schema for a future authorized
 same-origin HTTPS backend and a cache interface. Version 1 requires the original
@@ -25,8 +25,6 @@ snapshot; cache and snapshot must be visibly identified as non-live when this
 module is integrated. Publication time is not itself proof that the Sheet is
 current. Authentication and response integrity depend on the authorized backend
 and deployment; client validation and browser storage do not establish official
-provenance. The cache is not yet wired to IndexedDB and the UI continues to use
-only the labeled snapshot. No live endpoint is configured or contacted.
+provenance. The adapter is wired to startup with a separate IndexedDB cache interface; the UI currently uses only the labeled snapshot. No live endpoint is configured or contacted.
 
-Integration, persistent caching, user-facing freshness states, source authenticity,
-endpoint approval, security tests and browser/offline tests remain outstanding.
+Approved endpoint, source authenticity, live and cached user-facing states, security tests and browser/offline tests remain outstanding. Current endpoint-disabled startup does not exercise the persistent cache.

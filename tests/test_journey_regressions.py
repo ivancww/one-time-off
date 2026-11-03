@@ -11,7 +11,7 @@ class JourneyRegressionTest(unittest.TestCase):
 const fs = require('fs'), vm = require('vm');
 const data = JSON.parse(fs.readFileSync('data/official-snapshot.json', 'utf8'));
 const source = fs.readFileSync('src/main.js', 'utf8')
-  .replace(/^import .*\n/, '').replace(/\nrender\(\);\s*$/, '');
+  .replace(/^import .*\n/gm, '').replace(/\nrender\(\);\s*$/, '');
 vm.runInNewContext(source + `
   if (entryMode('?avaEntry=frontend') !== 'frontend' || entryMode('?avaEntry=admin') !== 'admin' || entryMode('?avaEntry=user') !== 'user' || entryMode('?avaEntry=frontend&avaEntry=admin') !== 'admin') throw Error('unsafe entry routing');
   if (!validLegacyUserData({introNote:'one',summaryNote:'two'})) throw Error('legacy notes rejected');
@@ -34,7 +34,7 @@ vm.runInNewContext(source + `
   state.goals = [1]; state.bankRate = 1.5; state.bankYears = 10; state.step = 6;
   if (!body().includes('客人關注：提取現金流')) throw Error('goal missing from summary');
   if (!body().includes('1.5%') || !body().includes('10 年')) throw Error('bank assumptions missing from summary');
-`, {data, document: {}, window: {}, URLSearchParams});
+`, {bundledData:data, document: {}, window: {}, URLSearchParams});
 '''
         subprocess.run(['node', '-e', script], cwd=ROOT, check=True)
 

@@ -24,5 +24,4 @@ one IndexedDB write; v1 two-note backups are accepted as a v2 draft and the old
 stored record is migrated in memory without overwriting it until Save. Official
 values and disclosures remain read-only. Custom page insertion, ordering and
 visibility are not implemented. Browser workflow runs simulated viewports only;
-installed PWA, WebView and physical devices remain unverified. PWA shell updates,
-live data adapter integration and persistent official-data caching remain open.
+installed PWA, WebView and physical devices remain unverified. PWA shell updates and authorized live source remain open. The adapter and a separate IndexedDB cache interface are wired into startup; endpoint is disabled, so only the bundled snapshot is currently used. Cache/live behavior still requires browser integration tests with an approved endpoint.

@@ -11,7 +11,7 @@ class PresentationRegressionTest(unittest.TestCase):
 const fs = require('fs'), vm = require('vm'), assert = require('assert');
 const data = JSON.parse(fs.readFileSync('data/official-snapshot.json', 'utf8'));
 const source = fs.readFileSync('src/main.js', 'utf8')
-  .replace(/^import .*\n/, '').replace(/\nrender\(\);\s*$/, '');
+  .replace(/^import .*\n/gm, '').replace(/\nrender\(\);\s*$/, '');
 const check = `
   state.step = 2;
   if (!body().includes('value="1.5"')) throw Error('decimal rate is rounded');
@@ -24,7 +24,7 @@ const check = `
   state.step = 4; state.plan = 'year1'; state.term = 6;
   if (!body().includes('無此年度數據')) throw Error('unsupported year invented');
 `;
-vm.runInNewContext(source + check, {data, document: {}, window: {}});
+vm.runInNewContext(source + check, {bundledData:data, document: {}, window: {}});
 '''
         subprocess.run(["node", "-e", script], cwd=ROOT, check=True)
 

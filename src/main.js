@@ -1,4 +1,11 @@
-import data from "../data/official-snapshot.json" with {type:"json"};
+import bundledData from "../data/official-snapshot.json" with {type:"json"};
+import {loadOfficialData,validDataset} from "./official-data.mjs";
+let data=bundledData;
+// No endpoint is approved yet. Do not put credentials in this client.
+const OFFICIAL_ENDPOINT=null;
+let officialStatus={mode:"snapshot",publishedAt:null};
+function openOfficialCache(){return new Promise((resolve,reject)=>{const r=indexedDB.open("ava-one-time-off-official",1);r.onupgradeneeded=()=>r.result.createObjectStore("cache");r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.onblocked=()=>reject(Error("cache blocked"))})}
+const officialCache={async read(){const db=await openOfficialCache();try{return await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readonly"),r=tx.objectStore("cache").get("official-v1");r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}},async write(value){const db=await openOfficialCache();try{await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readwrite");tx.objectStore("cache").put(value,"official-v1");tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}}};
 const names=["了解目標","資金安排","銀行比較","提取選擇","年度投影","方案比較","總結"];
 const goalLabels=["資金保留與流動性","提取現金流","長期資產累積","風險與回報取捨"];
 const state={step:0,capital:500000,term:20,plan:"rollover",bankRate:1.5,bankYears:20,goals:[]};
@@ -29,8 +36,8 @@ function validateSnapshot(snapshot){
  if(!snapshot || snapshot.dataMode!=="verified-manual-snapshot" || !Array.isArray(snapshot.plans) || snapshot.plans.length!==expected.length)return false;
  return expected.every(([id,sheet],i)=>{const p=snapshot.plans[i];if(!p || p.id!==id || p.sheet!==sheet || !Number.isFinite(p.rate) || p.rate<0 || p.rate>1 || !Array.isArray(p.balances) || !p.balances.length)return false;let previous=0;return p.balances.every(row=>{if(!Array.isArray(row) || row.length!==2 || !Number.isSafeInteger(row[0]) || row[0]<=previous || !Number.isFinite(row[1]) || row[1]<=0)return false;previous=row[0];return true})});
 }
-const snapshotValid=validateSnapshot(data);
-const years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[];
+let snapshotValid=validateSnapshot(data);
+let years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[];
 const amountField=(id,label,val,min=1)=>'<label for="'+id+'">'+label+'</label><input id="'+id+'" inputmode="decimal" type="text" value="'+decimal(val)+'" data-min="'+min+'">';
 const metric=(name,value)=>'<div class="metric"><span>'+name+'</span><strong>'+value+'</strong></div>';
 function entryMode(search){
@@ -85,6 +92,7 @@ if(entry==="admin"){
 if(!snapshotValid){$("#mode").textContent="資料不可用";$("#steps").innerHTML="";$("#app").innerHTML='<h1>資料暫時不可用</h1><p>資料快照未通過檢查，投影已停用。請聯絡管理人員確認資料來源。</p>';return}
 if(entry==="user" && !userReady){$("#mode").textContent="個人編輯";$("#steps").innerHTML="";$("#app").innerHTML='<h1>個人編輯不可用</h1><p>無法讀取本機資料；請檢查瀏覽器儲存設定。</p><a href="./">返回銷售展示</a>';return}
 
+const sourceNode=$("#source-status");if(sourceNode){const labels={snapshot:"手動快照：非即時，新鮮度未確認",cached:"本機快取：非即時",live:"已連接資料來源"};sourceNode.textContent=labels[officialStatus.mode]+(officialStatus.publishedAt?" · 發布時間 "+officialStatus.publishedAt:"")}
 $("#mode").textContent=entry==="user"?"個人編輯 · 本機資料":userReady?"銷售展示 · 原型":"銷售展示 · 個人資料不可用";
 $("#steps").innerHTML=names.map((n,i)=>entry==="user" && !userPages.includes(i)?"":'<button data-step="'+i+'" '+(i===state.step?'aria-current="step"':"")+">"+(i+1)+" "+n+"</button>").join("");
 const renderedBody=body().replace(/<h1>([^<]*)<\/h1>/,(_,original)=>{
@@ -114,5 +122,5 @@ const print=$("#print");if(print)print.onclick=()=>window.print();
 }
 if(typeof window!=="undefined" && typeof window.addEventListener==="function" && typeof document!=="undefined"){
  window.addEventListener("beforeunload",e=>{if(userDirty){e.preventDefault();e.returnValue=""}});
- (async()=>{try{const saved=await readUserData();if(saved!==undefined)userSaved=migrateUserData(saved);userDraft=cloneUser(userSaved);userReady=true}catch(e){userReady=false}render()})();
+ (async()=>{try{officialStatus=await loadOfficialData({snapshot:bundledData,endpoint:OFFICIAL_ENDPOINT,cache:officialCache});data=officialStatus.data;snapshotValid=validDataset(data);years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[]}catch(e){snapshotValid=false}try{const saved=await readUserData();if(saved!==undefined)userSaved=migrateUserData(saved);userDraft=cloneUser(userSaved);userReady=true}catch(e){userReady=false}render()})();
 }

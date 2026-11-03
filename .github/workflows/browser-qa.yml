@@ -18,6 +18,7 @@ jobs:
       - run: npm install --no-save playwright@1.52.0
       - run: npx playwright install --with-deps chromium
       - run: node tests/browser_qa.cjs
+      - run: node tests/browser_pwa.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

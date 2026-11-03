@@ -133,3 +133,9 @@ if(typeof window!=="undefined" && typeof window.addEventListener==="function" &&
  window.addEventListener("beforeunload",e=>{if(userDirty){e.preventDefault();e.returnValue=""}});
  (async()=>{try{officialStatus=await loadOfficialData({snapshot:bundledData,endpoint:OFFICIAL_ENDPOINT,cache:officialCache});data=officialStatus.data;snapshotValid=validDataset(data);years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[]}catch(e){snapshotValid=false}try{const saved=await readUserData();if(saved!==undefined)userSaved=migrateUserData(saved);userDraft=cloneUser(userSaved);userReady=true}catch(e){userReady=false}render()})();
 }
+
+if(typeof window!=="undefined" && typeof navigator!=="undefined" && typeof document!=="undefined"){
+ const network=()=>{const node=document.querySelector("#network-status");if(node)node.textContent=navigator.onLine?"網絡已連接":"離線模式：使用上次保存的程式及資料"};
+ window.addEventListener("online",network);window.addEventListener("offline",network);network();
+ if("serviceWorker" in navigator && (location.protocol==="https:" || location.hostname==="localhost" || location.hostname==="127.0.0.1"))navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(reg=>reg.update()).catch(()=>{const node=document.querySelector("#network-status");if(node)node.textContent="離線功能暫時不可用"});
+}

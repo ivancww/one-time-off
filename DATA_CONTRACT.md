@@ -12,3 +12,21 @@ The 1/3/5-year labels imply possible payout start times but are **not** verified
 The current app uses an explicitly labeled **manual verified snapshot**, not live Google Sheets/GAS sync. Before production: implement server-side authenticated GAS/Sheets adapter, versioning and validation, safe caching, schema checks, and fallback. Do not publish Sheet edit credentials in the client.
 
 The current Phase 1 UI is a sales-flow prototype, **not Mother Standard compliance sign-off**: Unified User Edit, proper IndexedDB persistence, frontend/user/admin entry boundary, approved official/live integration, PWA updates and comprehensive cross-device QA remain pending.
+
+## Adapter foundation (not connected to the customer journey)
+
+`src/official-data.mjs` defines a fail-closed schema for a future authorized
+same-origin HTTPS backend and a cache interface. Version 1 requires the original
+spreadsheet identity, four exact ordered tabs and rates, ascending unique exact
+policy years, finite positive multipliers, a revision and a non-future publication
+time. A changed schema or rate requires an explicit reviewed migration. Failed
+network/validation can use a previously validated cache, or the bundled manual
+snapshot; cache and snapshot must be visibly identified as non-live when this
+module is integrated. Publication time is not itself proof that the Sheet is
+current. Authentication and response integrity depend on the authorized backend
+and deployment; client validation and browser storage do not establish official
+provenance. The cache is not yet wired to IndexedDB and the UI continues to use
+only the labeled snapshot. No live endpoint is configured or contacted.
+
+Integration, persistent caching, user-facing freshness states, source authenticity,
+endpoint approval, security tests and browser/offline tests remain outstanding.

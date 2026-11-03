@@ -25,3 +25,11 @@ stored record is migrated in memory without overwriting it until Save. Official
 values and disclosures remain read-only. Custom page insertion, ordering and
 visibility are not implemented. Browser workflow runs simulated viewports only;
 installed PWA, WebView and physical devices remain unverified. PWA shell updates and authorized live source remain open. The adapter and a separate IndexedDB cache interface are wired into startup; endpoint is disabled, so only the bundled snapshot is currently used. Cache/live behavior still requires browser integration tests with an approved endpoint.
+
+## Next User Edit iteration
+The v3 local presentation schema adds three allowlisted explanatory paragraphs
+and user-owned text pages with position, ordering within a position, visibility,
+and deletion. Official pages stay required. v1/v2 records import through
+validated migration; unchanged saved data is retained until an explicit save.
+Review browser evidence for the exact HEAD. Media pages, complete classification,
+PWA shell update, real-device QA and endpoint-backed cache remain outstanding.

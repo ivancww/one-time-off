@@ -17,7 +17,9 @@ vm.runInNewContext(source+`
  if(!validUserData(v4)||v4.customPages[0].media!==''||v4.customPages[0].visible!==false||v4.introNote!=='保留')throw Error('v3 migration lost data');
  v4.customPages[0].media='data:image/png;base64,aGVsbG8=';
  if(!validUserData(v4))throw Error('image rejected');
- if(!validUserData(migrateUserData(v4)))throw Error('v4 migration failed');
+ if(!validUserData(migrateUserData(v4)))throw Error('v5 migration failed');
+ const legacy={...v4};delete legacy.deletedPages;const preserved=migrateUserData(legacy);if(!validUserData(preserved)||preserved.customPages[0].media!==v4.customPages[0].media)throw Error('v4 media lost');
+ preserved.deletedPages.push(preserved.customPages.pop());if(!validUserData(preserved)||preserved.deletedPages[0].media!==legacy.customPages[0].media)throw Error('deleted page media lost');
  for(const media of ['data:image/svg+xml;base64,PHN2Zz4=','https://evil.test/a.png','data:image/png;base64,abc\" onerror=alert(1)','data:video/mp4;base64,'+'A'.repeat(1400001)]){
   const bad=cloneUser(v4);bad.customPages[0].media=media;if(validUserData(bad))throw Error('unsafe media accepted');
  }

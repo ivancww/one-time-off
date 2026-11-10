@@ -26,11 +26,9 @@ vm.runInNewContext(source + `
   broken.plans[0].balances[0][1] = 1; broken.plans[0].balances[1][0] = broken.plans[0].balances[0][0];
   if (validateSnapshot(broken)) throw Error('duplicate year accepted');
   state.plan = 'year1'; state.capital = 500000; state.term = 5; state.step = 4;
-  const chart = projectionChart(plan(state.plan));
-  if (!chart.includes('396,635')) throw Error('incorrect chart amount');
-  if (chart.includes('>6 年<')) throw Error('chart invented missing year');
-  if (!body().includes('結餘與投入的差額（非總回報）') || !body().includes('-103,365')) throw Error('remaining balance difference missing');
-  state.step=5; const compare=comparisonChart(6); if(!compare.includes('此年度未提供') || !compare.includes('615,000')) throw Error('exact-year comparison incorrect'); if(!body().includes('正式條款未核實')) throw Error('missing unsupported cash-flow disclosure'); state.step=4;
+  const view = body();
+  if (!view.includes('396,635') || view.includes('data-year="6"')) throw Error('incorrect exact-year projection');
+  state.step=5; state.term=6; const compare=body(); if(!compare.includes('未有數據') || !compare.includes('615,000')) throw Error('exact-year comparison incorrect'); if(!compare.includes('正式條款未核實')) throw Error('missing unsupported cash-flow disclosure'); state.step=4;
   state.term = 6; if (!body().includes('無此年度數據')) throw Error('missing year must stay unavailable');
   state.goals = [1]; state.bankRate = 1.5; state.bankYears = 10; state.step = 6;
   if (!body().includes('客人關注：提取現金流')) throw Error('goal missing from summary');

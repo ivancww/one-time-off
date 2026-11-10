@@ -34,3 +34,7 @@ to verify it. This is an app warning threshold, not a verified product update
 schedule, expiry date, or proof that newer data exists. Snapshot freshness is
 unknown. Endpoint activation still requires an approved authenticated backend;
 local cache and client schema checks alone cannot establish provenance.
+
+## Deployment configuration
+
+`index.html` has an empty `official-data-endpoint` meta value. A deployment can set it to an authorized same-origin HTTPS endpoint returning the adapter's version 1 envelope. Startup then attempts a read and validates and caches the response; failures use a validated cache or the bundled snapshot and are labelled. No backend is supplied or configured here, and this setting does not establish source authenticity. No live sync has been verified. The four snapshot tables were compared with Sheet A1:C100 on 2026-11-11 (Hong Kong time).

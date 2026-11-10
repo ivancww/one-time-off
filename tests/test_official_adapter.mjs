@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {validDataset,validEnvelope,loadOfficialData} from '../src/official-data.mjs';
+const snapshot=JSON.parse(await readFile(new URL('../data/official-snapshot.json',import.meta.url)));
+const now=Date.parse('2026-11-03T00:00:00Z');
+const envelope={schemaVersion:1,revision:'r1',publishedAt:'2026-11-02T00:00:00Z',data:snapshot};
+assert(validDataset(snapshot));assert(validEnvelope(envelope,now));
+const bad=structuredClone(envelope);bad.data.plans[0].balances[1][0]=bad.data.plans[0].balances[0][0];assert(!validEnvelope(bad,now));
+assert(!validEnvelope({...envelope,schemaVersion:2},now));assert(!validEnvelope({...envelope,publishedAt:'2027-01-01'},now));
+assert.equal((await loadOfficialData({snapshot,now})).mode,'snapshot');
+globalThis.location={href:'https://example.test/app/',origin:'https://example.test'};
+let cached;const cache={write:async x=>{cached=x},read:async()=>cached};
+const live=await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>({ok:true,json:async()=>envelope})});assert.equal(live.mode,'live');assert.equal(live.stale,false);const old=await loadOfficialData({snapshot,endpoint:'/official',cache,now:now+8*86400000,fetcher:async()=>({ok:true,json:async()=>envelope})});assert.equal(old.stale,true);
+const offline=await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>{throw Error('offline')}});assert.equal(offline.mode,'cached');
+cached=bad;assert.equal((await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>{throw Error('offline')}})).mode,'snapshot');
+cached=envelope;assert.equal((await loadOfficialData({snapshot,endpoint:'https://evil.test/data',cache,now,fetcher:async()=>{throw Error('must not call')}})).mode,'snapshot');
+console.log('official adapter validation and fallback: PASS');

@@ -5,3 +5,5 @@ The projection screenshots show the one-time app with its bundled snapshot, usin
 The `diagnostics-*` captures use a mocked endpoint in User Edit mode. `LIVE` here describes that simulated endpoint; it does not demonstrate a Google Sheet or production connection. The simulated revised 1.35 multiplier and HK$675,000 result are test-only values. iPad and HONOR captures are viewport simulations, not physical devices.
 
 Content and financial update tests in this revision use simulated endpoint responses; the official text snapshot was read separately from the Sheet. Screenshots do not demonstrate GAS connectivity. Viewports are simulated.
+
+`platform-entry-*` images show local Platform/App integration with a test-only promoted registry and loopback App URLs. Production registration stays hidden/disabled. Tablet viewports and standalone browser state are simulated; no physical device or deployed integration is claimed.

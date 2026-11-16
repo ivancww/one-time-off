@@ -12,11 +12,19 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ivancww/avaplatform
+          ref: 2be703cd7c1c1e44c6279d5503508c082d9951f9
+          path: work/platform-fixture
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm install --no-save playwright@1.52.0
       - run: npx playwright install --with-deps chromium
+      - run: node tests/browser_platform_entry.cjs
+        env:
+          PLATFORM_CHECKOUT: ${{ github.workspace }}/work/platform-fixture
       - run: node tests/browser_qa.cjs
       - run: node tests/browser_user_check.cjs
       - run: node tests/browser_pwa.cjs

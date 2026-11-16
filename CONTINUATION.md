@@ -43,3 +43,7 @@ Owner-described nested financial/content fields are now mapped by `server/gas-ma
 ## Owner-provided schema examples
 
 Owner-supplied abbreviated schema examples are stored in `tests/fixtures/owner-gas-schema-examples.json` and explicitly identify themselves as non-live. The parser now fails closed on service/API/schema versions outside the supplied example. Tests reject the examples' incomplete datasets and bootstrap placeholders, compare example rows with the verified snapshot, and build complete test-only data from that snapshot for the four-action reader. A contract-fixture pass is not a real GAS or App live-sync verification; network access and the authorized gateway remain outstanding.
+
+## Platform Phase 1
+
+See `docs/PLATFORM-INTEGRATION.md`. Front/User entries are locally verified with draft Preview, Save Local and persistent Return to AVA; local browser QA exercises Platform navigation with loopback destinations injected in memory. Production registration remains hidden and disabled pending a verified canonical App deployment URL, live entry checks and device/PWA verification. User capability is not enabled in the production registry and Admin remains false. Future Admin origins and one-time session integration are documented only; no authorization or password placeholder is implemented.

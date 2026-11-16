@@ -22,6 +22,7 @@ jobs:
       - run: node tests/browser_pwa.cjs
       - run: node tests/browser_projection.cjs
       - run: node tests/browser_official_data.cjs
+      - run: node tests/browser_staging_gateway.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

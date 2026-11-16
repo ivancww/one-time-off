@@ -21,6 +21,7 @@ jobs:
       - name: Test read-only Sheets adapter
         run: |
           node tests/test_sheets_readonly.mjs
+          node tests/test_gas_contract.mjs
           node tests/test_staging_build.mjs
           node tests/test_staging_gateway.mjs
       - name: Ensure no production/credential secrets in tracked files

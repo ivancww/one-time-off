@@ -35,9 +35,9 @@ class OfficialContractTest(unittest.TestCase):
 
     def test_critical_disclosures_and_safe_ui(self):
         js = (ROOT / "src/main.js").read_text(encoding="utf-8")
-        self.assertIn("不插值", js)
-        self.assertIn("不代表實際銀行報價", js)
-        self.assertIn("累計已提取金額未計入", js)
+        self.assertIn("不插值", str(DATA["content"]["disclosures"]))
+        self.assertIn("不代表實際銀行報價", str(DATA["content"]["disclosures"]))
+        self.assertIn("累計已提取金額未計入", str(DATA["content"]["disclosures"]))
         self.assertIn("window.print()", js)
 
 if __name__ == "__main__":

@@ -4,13 +4,14 @@ import {validDataset,validEnvelope,loadOfficialData} from '../src/official-data.
 const snapshot=JSON.parse(await readFile(new URL('../data/official-snapshot.json',import.meta.url)));
 const now=Date.parse('2026-11-03T00:00:00Z');
 const envelope={schemaVersion:1,revision:'r1',publishedAt:'2026-11-02T00:00:00Z',data:snapshot};
-assert(validDataset(snapshot));assert(validEnvelope(envelope,now));
+assert(validDataset(snapshot));const missingContent=structuredClone(snapshot);missingContent.content.entries.pop();assert(!validDataset(missingContent));const duplicateContent=structuredClone(snapshot);duplicateContent.content.disclosures[1][0]=duplicateContent.content.disclosures[0][0];assert(!validDataset(duplicateContent));assert(validEnvelope(envelope,now));
 const bad=structuredClone(envelope);bad.data.plans[0].balances[1][0]=bad.data.plans[0].balances[0][0];assert(!validEnvelope(bad,now));
 assert(!validEnvelope({...envelope,schemaVersion:2},now));assert(!validEnvelope({...envelope,publishedAt:'2027-01-01'},now));
 assert.equal((await loadOfficialData({snapshot,now})).mode,'snapshot');
 globalThis.location={href:'https://example.test/app/',origin:'https://example.test'};
 let cached;const cache={write:async x=>{cached=x},read:async()=>cached};
 const live=await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>({ok:true,json:async()=>envelope})});assert.equal(live.mode,'live');assert.equal(live.stale,false);const old=await loadOfficialData({snapshot,endpoint:'/official',cache,now:now+8*86400000,fetcher:async()=>({ok:true,json:async()=>envelope})});assert.equal(old.stale,true);
+const contentConflict=structuredClone(envelope);contentConflict.data.content.entries[0][3]='different';assert.equal((await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>({ok:true,json:async()=>contentConflict})})).mode,'cached');
 const conflict=structuredClone(envelope);conflict.data.plans[0].balances[0][1]=1;
 assert.equal((await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>({ok:true,json:async()=>conflict})})).mode,'cached');
 assert.equal((await loadOfficialData({snapshot,endpoint:'/official',cache,now,fetcher:async()=>({ok:true,json:async()=>({...envelope,revision:'older',publishedAt:'2026-11-01T00:00:00Z'})})})).mode,'cached');

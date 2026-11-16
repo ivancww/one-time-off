@@ -1,10 +1,11 @@
 # PR #1 continuation checklist
 
-Status: draft; not ready for Final Review. Continue the existing branch. Do not merge or deploy without Owner approval.
+Status: draft; **not ready for Final Review**. No merge or deployment. Baseline before this round: `449b80db65b72c4c7d5398185d3740e6f3d3f116`. The latest commit is the revision containing this file (`git rev-parse HEAD`); its SHA cannot be embedded in its own contents without changing it. The PR description records the final HEAD and CI links.
 
-- Text-only User Edit is the approved current release scope. Existing v4 media is preserved in local data and backups; User Edit offers no media editing controls. Existing frontend media is preserved.
-- Version 5 retains deleted custom pages for restoration; v1–v4 records and backups are accepted through validation and migration. Verify storage failure and quota recovery separately.
-- Finish field-level sales content audit, accessibility and full responsive screenshot review; verify custom page ordering and all restore scenarios.
-- Verify official withdrawal terms and authorized official-data backend; keep unsupported cash-flow calculations and live sync disabled.
-- Verify service-worker script upgrades, installed PWA, real devices and WebViews. Browser viewport checks are simulations.
-- Admin authentication remains unsupported and must not be enabled by URL flags.
+- Implemented: one-time contribution × exact published-year multiplier, four arrangements, year selector, optional annual table, source status and separate official/user caches. Unsupported withdrawal amounts remain disabled. The new read-only server component maps the four Sheets tabs, validates every row, produces a content revision, and requires host-supplied caller authorization and a reader token. Browser startup and reconnect use the existing adapter, with validated cache/snapshot fallback. See `docs/OFFICIAL-READ.md`.
+- Changed in this round: `server/sheets-readonly.mjs`, `src/official-data.mjs`, `src/main.js`, tests, two CI workflows, `DATA_CONTRACT.md`, `docs/OFFICIAL-READ.md`, this checklist and QA screenshots.
+- Local QA: all 60 rows and simulated devices, browser source failure/cache/recovery, text-only User Edit and backups, PWA offline/update and multi-tab, source/schema/security tests. See PR for exact run URLs and latest results; automated CI must be checked against final HEAD.
+- BLOCKED: an Owner-authorized same-origin HTTPS service, its caller authorization, viewer identity and read-only token provider; actual app-to-Sheet read and live deployment are not verified. See the exact configuration steps in `docs/OFFICIAL-READ.md`. Do not modify production Sheet or GAS.
+- BLOCKED: cash-flow commencement, percentage base, frequency and timing need authoritative One-Time-Off terms. `DATA_CONTRACT.md` contains the HK$500,000 worked example. No estimated payouts, withdrawal totals or extra subtraction are enabled.
+- NOT TESTED: physical iPad, HONOR Magic V5 folded/unfolded, installed PWA and WebViews; browser viewports are simulations. Complete accessibility and storage quota/failure checks and Platform integration verification before release. Admin remains unsupported.
+- Mother Rules inspected at Platform main `a12beaea002df9ae13e676f890c16951d4f21b28`; this is not a Platform integration sign-off. Text-only User Edit remains the scope; historical user media and backups remain preserved.

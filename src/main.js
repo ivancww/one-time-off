@@ -5,7 +5,7 @@ let data=bundledData;
 const OFFICIAL_ENDPOINT=document.querySelector?.('meta[name="official-data-endpoint"]')?.content.trim() || null;
 let officialStatus={mode:"snapshot",publishedAt:null};
 function openOfficialCache(){return new Promise((resolve,reject)=>{const r=indexedDB.open("ava-one-time-off-official",1);r.onupgradeneeded=()=>r.result.createObjectStore("cache");r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.onblocked=()=>reject(Error("cache blocked"))})}
-const officialCache={async read(){const db=await openOfficialCache();try{return await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readonly"),r=tx.objectStore("cache").get("official-v1");r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}},async write(value){const db=await openOfficialCache();try{await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readwrite");tx.objectStore("cache").put(value,"official-v1");tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}}};
+const officialCache={async read(endpoint){const db=await openOfficialCache();try{return await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readonly"),r=tx.objectStore("cache").get("official-v1:"+endpoint);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}},async write(value,endpoint){const db=await openOfficialCache();try{await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readwrite");tx.objectStore("cache").put(value,"official-v1:"+endpoint);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}}};
 const names=["了解目標","資金安排","銀行比較","提取選擇","年度投影","方案比較","總結"];
 const goalLabels=["資金保留與流動性","提取現金流","長期資產累積","風險與回報取捨"];
 const state={step:0,capital:500000,term:20,plan:"rollover",bankRate:1.5,bankYears:20,goals:[]};
@@ -32,6 +32,7 @@ function userNote(){if(customPageId)return "";const key=state.step===0?"introNot
 
 const money=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:2});
 const decimal=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:6});
+const multiplierText=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:15});
 // A tab name is a source identifier, not confirmation of withdrawal timing.
 const planLabel=p=>p.id==="rollover"?"自動滾存（不提取）":"提取安排（來源分頁："+p.sheet+"）";
 const plan=id=>data.plans.find(p=>p.id===id);
@@ -52,7 +53,7 @@ function entryMode(search){
  return "frontend";
 }
 function annualPresentation(p,v,project){
- return '<div class="anchor-metric"><span>一次性投入</span><strong>HK$ '+money(state.capital)+'</strong></div><div class="time-controls" aria-label="已提供的保單年度">'+p.balances.map(([year])=>'<button type="button" class="year-chip" data-year="'+year+'" aria-pressed="'+(year===state.term)+'">'+year+'<small>年</small></button>').join('')+'</div><div class="result-card"><span class="card-kicker">第 '+state.term+' 年 · '+escapeText(p.sheet)+'</span><strong>'+(project===null?'無此年度數據':'HK$ '+money(project))+'</strong><span>'+(v===null?'此安排沒有提供此年度。':'一次性投入 × 結餘倍數 '+decimal(v))+'</span></div><details class="annual-details"><summary>查看所有已提供年度</summary><div class="table-wrap" tabindex="0" role="region" aria-label="年度結餘表"><table><thead><tr><th>保單年度</th><th>每年提取百分比</th><th>結餘倍數</th><th>預計結餘 HK$</th></tr></thead><tbody>'+p.balances.map(([year,multiplier])=>'<tr><td>'+year+' 年</td><td>'+decimal(p.rate*100)+'%</td><td>'+decimal(multiplier)+'×</td><td>'+money(state.capital*multiplier)+'</td></tr>').join('')+'</tbody></table></div></details><p class="calculation-note">只顯示來源提供的年度，不插值、不外推；結餘按一次性投入乘以該年度倍數計算，不包含已提取款項，並非總回報。</p>';
+ return '<div class="anchor-metric"><span>一次性投入</span><strong>HK$ '+money(state.capital)+'</strong></div><div class="time-controls" aria-label="已提供的保單年度">'+p.balances.map(([year])=>'<button type="button" class="year-chip" data-year="'+year+'" aria-pressed="'+(year===state.term)+'">'+year+'<small>年</small></button>').join('')+'</div><div class="result-card"><span class="card-kicker">第 '+state.term+' 年 · '+escapeText(p.sheet)+'</span><strong>'+(project===null?'無此年度數據':'HK$ '+money(project))+'</strong><span>'+(v===null?'此安排沒有提供此年度。':'一次性投入 × 結餘倍數 '+multiplierText(v))+'</span></div><details class="annual-details"><summary>查看所有已提供年度</summary><div class="table-wrap" tabindex="0" role="region" aria-label="年度結餘表"><table><thead><tr><th>保單年度</th><th>每年提取百分比</th><th>結餘倍數</th><th>預計結餘 HK$</th></tr></thead><tbody>'+p.balances.map(([year,multiplier])=>'<tr><td>'+year+' 年</td><td>'+decimal(p.rate*100)+'%</td><td>'+multiplierText(multiplier)+'×</td><td>'+money(state.capital*multiplier)+'</td></tr>').join('')+'</tbody></table></div></details><p class="calculation-note">只顯示來源提供的年度，不插值、不外推；結餘按一次性投入乘以該年度倍數計算，不包含已提取款項，並非總回報。每年及累計提取金額的計算基數和時間未核實，暫不顯示。</p>';
 }
 function body(){
 const p=plan(state.plan),v=exact(p,state.term),project=v===null?null:state.capital*v;
@@ -63,7 +64,7 @@ case 1:return '<h1>你想點樣安排現有資金？</h1>'+amountField("capital"
 case 2:return '<h1>如果將資金留喺銀行？</h1>'+amountField("bankRate","假設銀行年利率（%）",state.bankRate,0)+amountField("bankYears","銀行情境年期（年）",state.bankYears,1)+'<div class="grid">'+metric("一次性本金","HK$ "+money(state.capital))+metric("假設 "+state.bankYears+" 年後銀行結餘","HK$ "+money(bank))+'</div><p class="note">銀行利率由用戶自行假設，不代表實際銀行報價；此處用複息情境作比較，非產品回報計法。</p>';
 case 3:return '<h1>你希望提取現金，還是留低滾存？</h1><label for="arrangement">選擇安排</label><select id="arrangement">'+data.plans.map(q=>'<option value="'+q.id+'" '+(state.plan===q.id?'selected':'')+'>'+escapeText(planLabel(q))+'</option>').join('')+'</select><p class="note">每年提取百分比來自 Sheet；開始提取年份、計算基數及實際付款日仍須正式條款確認。</p>';
 case 4:return '<h1>年度結餘投影</h1><p>選擇已提供的保單年度，查看 '+escapeText(planLabel(p))+' 的結餘。</p>'+annualPresentation(p,v,project);
-case 5:return '<h1>相同本金，不同安排</h1><p>一次性投入 HK$ '+money(state.capital)+'；所列為保單結餘，不包含已提取款項。</p><label for="term">比較保單年度</label><select id="term">'+years.map(y=>'<option value="'+y+'" '+(y===state.term?"selected":"")+'>'+y+' 年</option>').join("")+'</select><div class="table-wrap" tabindex="0" role="region" aria-label="各方案結餘比較表"><table><thead><tr><th>方案</th><th>結餘倍數</th><th>預計結餘 HK$</th></tr></thead><tbody>'+data.plans.map(q=>{const x=exact(q,state.term);return '<tr><td>'+escapeText(planLabel(q))+'</td><td>'+(x===null?"—":decimal(x)+'×')+'</td><td>'+(x===null?"未有數據":money(x*state.capital))+'</td></tr>'}).join("")+'</tbody></table></div><p class="calculation-note">累計已提取金額未計入；正式條款未核實，不能以結餘比較總回報。</p>';
+case 5:return '<h1>相同本金，不同安排</h1><p>一次性投入 HK$ '+money(state.capital)+'；所列為保單結餘，不包含已提取款項。</p><label for="term">比較保單年度</label><select id="term">'+years.map(y=>'<option value="'+y+'" '+(y===state.term?"selected":"")+'>'+y+' 年</option>').join("")+'</select><div class="table-wrap" tabindex="0" role="region" aria-label="各方案結餘比較表"><table><thead><tr><th>方案</th><th>結餘倍數</th><th>預計結餘 HK$</th></tr></thead><tbody>'+data.plans.map(q=>{const x=exact(q,state.term);return '<tr><td>'+escapeText(planLabel(q))+'</td><td>'+(x===null?"—":multiplierText(x)+'×')+'</td><td>'+(x===null?"未有數據":money(x*state.capital))+'</td></tr>'}).join("")+'</tbody></table></div><p class="calculation-note">累計已提取金額未計入；正式條款未核實，不能以結餘比較總回報。</p>';
 default:return '<h1>下一步：選擇合適安排</h1><div class="grid">'+metric("一次投入","HK$ "+money(state.capital))+metric("所選方案",planLabel(p))+metric("保單年度",state.term+" 年")+metric("該年結餘",project===null?"未有數據":"HK$ "+money(project))+metric("銀行年利率假設",decimal(state.bankRate)+"%")+metric("銀行情境年期",state.bankYears+" 年")+'</div><p>客人關注：'+(state.goals.length?state.goals.map(i=>goalLabels[i]).join('、'):'尚未選擇')+'</p><p data-edit-paragraph="2">可以同客人討論現金流需求、資金動用時間、承受能力及正式產品限制。</p><button class="secondary" id="print">列印／儲存 PDF</button><p class="note">本展示未包含保證／非保證回報分類、費用、退保限制或利益說明，正式使用前必須確認。</p>';
 }}
 function validateCurrent(){
@@ -98,7 +99,7 @@ if(entry==="admin"){
 if(!snapshotValid){$("#mode").textContent="資料不可用";$("#steps").innerHTML="";$("#app").innerHTML='<h1>資料暫時不可用</h1><p>資料快照未通過檢查，投影已停用。請聯絡管理人員確認資料來源。</p>';return}
 if(entry==="user" && !userReady){$("#mode").textContent="個人編輯";$("#steps").innerHTML="";$("#app").innerHTML='<h1>個人編輯不可用</h1><p>無法讀取本機資料；請檢查瀏覽器儲存設定。</p><a href="./">返回銷售展示</a>';return}
 
-const sourceNode=$("#source-status");if(sourceNode){const labels={snapshot:"手動快照：非即時，新鮮度未確認",cached:"本機快取：非即時",live:"已連接資料來源"};sourceNode.textContent=labels[officialStatus.mode]+(officialStatus.publishedAt?" · 發布時間 "+officialStatus.publishedAt:"")+(officialStatus.stale?" · 資料發布超過 7 日，請核實":"")+(officialStatus.error?" · 更新失敗":"")}
+const sourceNode=$("#source-status");if(sourceNode){const labels={snapshot:"手動快照：非即時，新鮮度未確認",cached:"本機快取：非即時",live:"已連接資料來源"};sourceNode.textContent=labels[officialStatus.mode]+(officialStatus.revision?" · 版本 "+officialStatus.revision.slice(0,12):"")+(officialStatus.publishedAt?" · 資料時間 "+officialStatus.publishedAt:"")+(officialStatus.stale?" · 資料時間超過 7 日，請核實":"")+(officialStatus.error?" · 更新失敗":"")}
 $("#mode").textContent=entry==="user"?"個人編輯 · 本機資料":userReady?"銷售展示 · 原型":"銷售展示 · 個人資料不可用";
 const activeUser=entry==="user"?userDraft:userSaved;
 const flow=[];for(let i=0;i<7;i++){flow.push({key:String(i),label:names[i]});activeUser.customPages.filter(p=>p.after===i&&(entry==="user"||p.visible)).forEach(p=>flow.push({key:p.id,label:p.title||"自訂頁"}))}
@@ -135,13 +136,18 @@ const arrangement=$("#arrangement");if(arrangement)arrangement.onchange=()=>{sta
 const term=$("#term");if(term)term.onchange=()=>{state.term=Number(term.value);render()};
 const print=$("#print");if(print)print.onclick=()=>window.print();
 }
+let refreshingOfficial=null;
+function refreshOfficial(){
+ if(refreshingOfficial)return refreshingOfficial;
+ refreshingOfficial=(async()=>{try{officialStatus=await loadOfficialData({snapshot:bundledData,endpoint:OFFICIAL_ENDPOINT,cache:officialCache});data=officialStatus.data;snapshotValid=validDataset(data);years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[]}catch(e){snapshotValid=false}})().finally(()=>{refreshingOfficial=null});return refreshingOfficial;
+}
 if(typeof window!=="undefined" && typeof window.addEventListener==="function" && typeof document!=="undefined"){
  window.addEventListener("beforeunload",e=>{if(userDirty){e.preventDefault();e.returnValue=""}});
- (async()=>{try{officialStatus=await loadOfficialData({snapshot:bundledData,endpoint:OFFICIAL_ENDPOINT,cache:officialCache});data=officialStatus.data;snapshotValid=validDataset(data);years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[]}catch(e){snapshotValid=false}try{const saved=await readUserData();if(saved!==undefined)userSaved=migrateUserData(saved);userDraft=cloneUser(userSaved);userReady=true}catch(e){userReady=false}render()})();
+ (async()=>{await refreshOfficial();try{const saved=await readUserData();if(saved!==undefined)userSaved=migrateUserData(saved);userDraft=cloneUser(userSaved);userReady=true}catch(e){userReady=false}render()})();
 }
 
 if(typeof window!=="undefined" && typeof navigator!=="undefined" && typeof document!=="undefined"){
  const network=()=>{const node=document.querySelector("#network-status");if(node)node.textContent=navigator.onLine?"網絡已連接":"離線模式：使用上次保存的程式及資料"};
- window.addEventListener("online",network);window.addEventListener("offline",network);network();
+ window.addEventListener("online",()=>{network();if(OFFICIAL_ENDPOINT)refreshOfficial().then(()=>{if(!userDirty)render()})});window.addEventListener("offline",network);network();
  if("serviceWorker" in navigator && (location.protocol==="https:" || location.hostname==="localhost" || location.hostname==="127.0.0.1"))navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(reg=>reg.update()).catch(()=>{const node=document.querySelector("#network-status");if(node)node.textContent="離線功能暫時不可用"});
 }

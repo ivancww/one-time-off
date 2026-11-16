@@ -38,3 +38,9 @@ local cache and client schema checks alone cannot establish provenance.
 ## Deployment configuration
 
 `index.html` has an empty `official-data-endpoint` meta value. A deployment can set it to an authorized same-origin HTTPS endpoint returning the adapter's version 1 envelope. Startup then attempts a read and validates and caches the response; failures use a validated cache or the bundled snapshot and are labelled. No backend is supplied or configured here, and this setting does not establish source authenticity. No live sync has been verified. The four snapshot tables were compared with Sheet A1:C100 on 2026-11-11 (Hong Kong time).
+
+## Unresolved cash-flow rules: Owner verification
+
+The Sheet's column says “annual withdrawal percentage”, but it does not establish the commencement date/year, whether the percentage applies to original contribution, opening balance or another base, the payment frequency within a year, timing relative to the valuation date, or treatment of partial years and prior withdrawals. The 5Pay strategy terms and five-year base are for another product and are not evidence for these rules. No other One-Time-Off product terms were found in the available repository and Drive search.
+
+For illustration of the missing rule only: with HK$500,000, tab `1year 4%`, and its published year-5 multiplier 0.79327, the supported remaining balance is HK$396,635. If 4% were applied to the original HK$500,000, a hypothetical amount would be HK$20,000; if applied to HK$396,635, it would be HK$15,865.40. Neither is an official withdrawal calculation, and the latter balance is not established as the correct payment base. Please verify the start, base, frequency and timing with product documentation before enabling amounts or cumulative totals. Do not subtract either hypothetical figure from the published balance.

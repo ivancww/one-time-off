@@ -1,0 +1,13 @@
+# One-Time-Off read-only source integration
+
+The 5Pay frontend uses its own GAS `bootstrap`, `version`, `content` and `returns` actions and local cache. That endpoint serves a different product and its five-year calculation and strategy rows must not be used for One-Time-Off. No One-Time-Off GAS deployment or endpoint was found or changed.
+
+`server/sheets-readonly.mjs` is a server-side integration component, not a deployed service. It reads only A:C of the four named tabs in a single Google Sheets API `values:batchGet` GET, validates the exact headers, rate in every row, tab names, ascending exact years and positive multipliers, then returns the existing v1 envelope. Its SHA-256 revision covers the normalized dataset; `publishedAt` is the time of that source read, not a product publication date. The browser requests an approved same-origin HTTPS endpoint at startup and on reconnect; it validates the envelope, checks cached revision consistency, caches it separately from User data, and falls back to cache or snapshot with a visible status. A read time older than seven days triggers a warning; it is not an official expiry.
+
+## Deployment prerequisites and authorization
+
+1. The Owner must select and authorize an independently operated same-origin HTTPS service and its caller authentication/authorization policy. Mount `officialReadHandler` behind that gateway and supply an `authorize(req)` implementation; the module refuses to construct a handler without one. Its 403 and 503 responses reveal no credentials.
+2. Provide a server-only, short-lived Google OAuth access token with `https://www.googleapis.com/auth/spreadsheets.readonly` scope via `getAccessToken()`, for an identity granted viewer access to the specified Sheet. Token acquisition, refresh, secret storage, audience/session authentication, rate limits and infrastructure are responsibilities of that service. Never include a token in frontend code, URLs, logs or browser storage.
+3. Set the app's `official-data-endpoint` meta value to the authorized same-origin HTTPS route in the deployment build. Check source authentication, actual permissions, data, CORS/gateway behavior, revision and network/offline behavior end-to-end before describing it as live. Deployment requires separate Owner approval. Do not change the Sheet or existing GAS project.
+
+No credential, service or endpoint has been configured here. Tests use a simulated Sheets API and endpoint; Google access from this environment is denied by network policy. The connected Sheets tool's point-in-time read is not an app runtime credential. Cache integrity depends on the authorized server and browser environment; neither schema checks nor local cache prove provenance.

@@ -1,0 +1,12 @@
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),assert=require('assert/strict');
+const root=process.cwd(),snapshot=require('../data/official-snapshot.json');
+const base='https://app.example.test';
+let fail=false,revision='test-r1';
+const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.css':'text/css'};
+(async()=>{const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||undefined});try{const ctx=await browser.newContext({serviceWorkers:'block'}),page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+await ctx.route('https://app.example.test/**',async route=>{const u=new URL(route.request().url());if(u.pathname==='/official'){if(fail)return route.abort('failed');return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({schemaVersion:1,revision,publishedAt:new Date().toISOString(),data:snapshot})})}const f=path.resolve(root,'.'+(u.pathname==='/'?'/index.html':u.pathname));if(!f.startsWith(root+path.sep)||!fs.existsSync(f))return route.fulfill({status:404});let body=fs.readFileSync(f);if(u.pathname==='/')body=Buffer.from(body.toString().replace('name="official-data-endpoint" content=""','name="official-data-endpoint" content="/official"'));return route.fulfill({status:200,contentType:mime[path.extname(f)]||'text/plain',body})});
+await page.goto(base);await page.getByText('已連接資料來源',{exact:false}).waitFor();assert((await page.locator('#source-status').innerText()).includes('test-r1'));
+fail=true;await page.reload();await page.getByText('本機快取：非即時',{exact:false}).waitFor();assert((await page.locator('#source-status').innerText()).includes('更新失敗'));
+await page.locator('[data-page="4"]').click();assert(await page.locator('.result-card strong').innerText());
+fail=false;revision='test-r2';await page.evaluate(()=>window.dispatchEvent(new Event('online')));await page.getByText('已連接資料來源',{exact:false}).waitFor();assert((await page.locator('#source-status').innerText()).includes('test-r2'));
+assert.deepEqual(errors,[]);console.log('Browser HTTPS source, IndexedDB cache, outage and recovery: PASS');await ctx.close()}finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});

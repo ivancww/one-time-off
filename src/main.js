@@ -4,6 +4,7 @@ let data=bundledData;
 // Deployments may configure an authorized same-origin endpoint; never put credentials in this client.
 const OFFICIAL_ENDPOINT=document.querySelector?.('meta[name="official-data-endpoint"]')?.content.trim() || null;
 let officialStatus={mode:"snapshot",publishedAt:null};
+let lastSuccessfulRead=null;
 function openOfficialCache(){return new Promise((resolve,reject)=>{const r=indexedDB.open("ava-one-time-off-official",1);r.onupgradeneeded=()=>r.result.createObjectStore("cache");r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.onblocked=()=>reject(Error("cache blocked"))})}
 const officialCache={async read(endpoint){const db=await openOfficialCache();try{return await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readonly"),r=tx.objectStore("cache").get("official-v1:"+endpoint);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}},async write(value,endpoint){const db=await openOfficialCache();try{await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readwrite");tx.objectStore("cache").put(value,"official-v1:"+endpoint);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}}};
 const names=["了解目標","資金安排","銀行比較","提取選擇","年度投影","方案比較","總結"];
@@ -89,6 +90,14 @@ function bindNumber(field,key,min,max,places){
   field.addEventListener("input",update);
 }
 function mediaHtml(media){if(!validMedia(media)||!media)return "";return media.startsWith("data:image/")?'<img class="custom-media" alt="自訂頁圖片" src="'+media+'">':'<video class="custom-media" controls preload="metadata" src="'+media+'"></video>'}
+function updateSourceDisplay(){
+ const entry=entryMode(window.location.search),panel=$("#source-diagnostics");
+ if(panel)panel.hidden=entry!=="user";
+ const node=$("#source-status");if(node){const labels={snapshot:"手動快照：非即時，新鮮度未確認",cached:"本機快取：非即時",live:"已連接資料來源"};node.textContent=(labels[officialStatus.mode]||"資料不可用")+(officialStatus.revision?" · 版本 "+officialStatus.revision.slice(0,12):"")+(officialStatus.publishedAt?" · 資料時間 "+officialStatus.publishedAt:"")+(officialStatus.stale?" · 資料時間超過 7 日，請核實":"")+(officialStatus.error?" · 更新失敗":"")}
+ if(!panel)return;
+ const values={mode:({live:"LIVE · 來源讀取",cached:"CACHED · 本機快取",snapshot:"SNAPSHOT · 手動快照"})[officialStatus.mode]||"不可用",time:officialStatus.publishedAt||lastSuccessfulRead||"未有可用記錄",revision:officialStatus.revision||"未有可用記錄",result:officialStatus.error?"失敗，已使用可用後備資料":officialStatus.mode==="live"?"成功":OFFICIAL_ENDPOINT?"尚未成功":"未設定來源",freshness:officialStatus.stale?"過期：來源讀取已超過 7 日":officialStatus.mode==="live"?"目前：最近一次來源讀取（非產品資料更新保證）":"不可確認：並非目前來源讀取"};
+ for(const [key,value] of Object.entries(values)){const el=$("#diag-"+key);if(el)el.textContent=value}
+}
 function render(){
 const entry=entryMode(window.location.search);
 const returnLink=$("#return-ava");if(returnLink)returnLink.href="https://ivancww.github.io/avaplatform/"+(entry==="user"?"?avaSurface=user":"");
@@ -99,7 +108,7 @@ if(entry==="admin"){
 if(!snapshotValid){$("#mode").textContent="資料不可用";$("#steps").innerHTML="";$("#app").innerHTML='<h1>資料暫時不可用</h1><p>資料快照未通過檢查，投影已停用。請聯絡管理人員確認資料來源。</p>';return}
 if(entry==="user" && !userReady){$("#mode").textContent="個人編輯";$("#steps").innerHTML="";$("#app").innerHTML='<h1>個人編輯不可用</h1><p>無法讀取本機資料；請檢查瀏覽器儲存設定。</p><a href="./">返回銷售展示</a>';return}
 
-const sourceNode=$("#source-status");if(sourceNode){const labels={snapshot:"手動快照：非即時，新鮮度未確認",cached:"本機快取：非即時",live:"已連接資料來源"};sourceNode.textContent=labels[officialStatus.mode]+(officialStatus.revision?" · 版本 "+officialStatus.revision.slice(0,12):"")+(officialStatus.publishedAt?" · 資料時間 "+officialStatus.publishedAt:"")+(officialStatus.stale?" · 資料時間超過 7 日，請核實":"")+(officialStatus.error?" · 更新失敗":"")}
+updateSourceDisplay();
 $("#mode").textContent=entry==="user"?"個人編輯 · 本機資料":userReady?"銷售展示 · 原型":"銷售展示 · 個人資料不可用";
 const activeUser=entry==="user"?userDraft:userSaved;
 const flow=[];for(let i=0;i<7;i++){flow.push({key:String(i),label:names[i]});activeUser.customPages.filter(p=>p.after===i&&(entry==="user"||p.visible)).forEach(p=>flow.push({key:p.id,label:p.title||"自訂頁"}))}
@@ -139,7 +148,7 @@ const print=$("#print");if(print)print.onclick=()=>window.print();
 let refreshingOfficial=null;
 function refreshOfficial(){
  if(refreshingOfficial)return refreshingOfficial;
- refreshingOfficial=(async()=>{try{officialStatus=await loadOfficialData({snapshot:bundledData,endpoint:OFFICIAL_ENDPOINT,cache:officialCache});data=officialStatus.data;snapshotValid=validDataset(data);years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[]}catch(e){snapshotValid=false}})().finally(()=>{refreshingOfficial=null});return refreshingOfficial;
+ refreshingOfficial=(async()=>{try{officialStatus=await loadOfficialData({snapshot:bundledData,endpoint:OFFICIAL_ENDPOINT,cache:officialCache});if(officialStatus.publishedAt)lastSuccessfulRead=officialStatus.publishedAt;data=officialStatus.data;snapshotValid=validDataset(data);years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[]}catch(e){snapshotValid=false;officialStatus={mode:"unavailable",error:true}}updateSourceDisplay()})().finally(()=>{refreshingOfficial=null});return refreshingOfficial;
 }
 if(typeof window!=="undefined" && typeof window.addEventListener==="function" && typeof document!=="undefined"){
  window.addEventListener("beforeunload",e=>{if(userDirty){e.preventDefault();e.returnValue=""}});
@@ -148,6 +157,6 @@ if(typeof window!=="undefined" && typeof window.addEventListener==="function" &&
 
 if(typeof window!=="undefined" && typeof navigator!=="undefined" && typeof document!=="undefined"){
  const network=()=>{const node=document.querySelector("#network-status");if(node)node.textContent=navigator.onLine?"網絡已連接":"離線模式：使用上次保存的程式及資料"};
- window.addEventListener("online",()=>{network();if(OFFICIAL_ENDPOINT)refreshOfficial().then(()=>{if(!userDirty)render()})});window.addEventListener("offline",network);network();
+ window.addEventListener("online",()=>{network();if(OFFICIAL_ENDPOINT)refreshOfficial().then(()=>{if(!userDirty)render()})});window.addEventListener("offline",()=>{network();if(OFFICIAL_ENDPOINT)refreshOfficial().then(()=>{if(!userDirty)render()})});network();
  if("serviceWorker" in navigator && (location.protocol==="https:" || location.hostname==="localhost" || location.hostname==="127.0.0.1"))navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(reg=>reg.update()).catch(()=>{const node=document.querySelector("#network-status");if(node)node.textContent="離線功能暫時不可用"});
 }

@@ -9,3 +9,9 @@ Status: draft; **not ready for Final Review**. No merge or deployment. Baseline 
 - BLOCKED: cash-flow commencement, percentage base, frequency and timing need authoritative One-Time-Off terms. `DATA_CONTRACT.md` contains the HK$500,000 worked example. No estimated payouts, withdrawal totals or extra subtraction are enabled.
 - NOT TESTED: physical iPad, HONOR Magic V5 folded/unfolded, installed PWA and WebViews; browser viewports are simulations. Complete accessibility and storage quota/failure checks and Platform integration verification before release. Admin remains unsupported.
 - Mother Rules inspected at Platform main `a12beaea002df9ae13e676f890c16951d4f21b28`; this is not a Platform integration sign-off. Text-only User Edit remains the scope; historical user media and backups remain preserved.
+
+## Source diagnostics and staging follow-up
+
+The User Edit footer includes collapsed source diagnostics for mode, last source-read time, revision, sync result and freshness. The normal customer-facing Frontstage does not expose the panel. Browser tests exercise mocked live data, changed values, denial, invalid rows, corrupted or absent cache, recovery and retained User data; the mock HK$675,000 result is not evidence of a real Sheet change. `tools/create-staging.mjs` prepares a temporary, clearly marked build for a distinct Sheet ID and refuses the production ID. The complete staging procedure and required identity/host are in `docs/OFFICIAL-READ.md`.
+
+**REAL SHEET READ through the app: NOT VERIFIED. PRODUCTION LIVE SYNC: NOT VERIFIED.** No approved staging endpoint or viewer credential is available; the isolated staging scenario and restoration remain unperformed. A missing well-formed year cannot be distinguished from a legitimate source deletion without an authoritative year manifest; no year is interpolated. Review screenshots and Actions for the current HEAD from PR #1.

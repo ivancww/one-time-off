@@ -19,7 +19,9 @@ jobs:
       - name: Run contract checks
         run: python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Test read-only Sheets adapter
-        run: node tests/test_sheets_readonly.mjs
+        run: |
+          node tests/test_sheets_readonly.mjs
+          node tests/test_staging_build.mjs
       - name: Ensure no production/credential secrets in tracked files
         shell: bash
         run: |

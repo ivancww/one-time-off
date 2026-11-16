@@ -24,6 +24,7 @@ jobs:
           node tests/test_gas_contract.mjs
           node tests/test_gas_actions.mjs
           node tests/test_gas_integration.mjs
+          node tests/test_gas_owner_examples.mjs
           node tests/test_staging_build.mjs
           node tests/test_staging_gateway.mjs
       - name: Ensure no production/credential secrets in tracked files

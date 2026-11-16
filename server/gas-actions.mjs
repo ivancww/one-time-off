@@ -8,8 +8,7 @@ const str=x=>typeof x==='string'&&x.trim().length>0&&x.length<=256;
 const revision=x=>str(x);
 const container=x=>!!x&&typeof x==='object';
 const timestamp=x=>typeof x==='string'&&Number.isFinite(Date.parse(x));
-const api=x=>(str(x)||(Number.isSafeInteger(x)&&x>0));
-function common(x){return object(x)&&x.success===true&&str(x.service)&&api(x.apiVersion)}
+function common(x){return object(x)&&x.success===true&&x.service==='AVA_ONE_TIME_OFF'&&x.apiVersion===1}
 export function parseGasBootstrap(x){
  if(!common(x)||!revision(x.contentRevision)||!container(x.financial)||!container(x.officialContent))throw Error('Invalid bootstrap response');
  return {service:x.service,apiVersion:x.apiVersion,contentRevision:x.contentRevision,financial:x.financial,officialContent:x.officialContent};
@@ -23,7 +22,7 @@ export function parseGasContent(x){
  return {service:x.service,apiVersion:x.apiVersion,revision:x.revision,readAt:x.readAt,data:x.data};
 }
 export function parseGasFinancial(x){
- if(!object(x)||x.success===false||!api(x.schemaVersion)||!revision(x.revision)||!timestamp(x.publishedAt)||!container(x.data))throw Error('Invalid financial response');
+ if(!object(x)||x.success===false||x.schemaVersion!==1||!revision(x.revision)||!timestamp(x.publishedAt)||!container(x.data))throw Error('Invalid financial response');
  return {schemaVersion:x.schemaVersion,revision:x.revision,publishedAt:x.publishedAt,data:x.data};
 }
 const pair=v=>[v.financialRevision,v.contentRevision];

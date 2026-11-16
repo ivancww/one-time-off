@@ -1,0 +1,147 @@
+
+{
+  "description": "AVA One-Time-Off GAS four-action contract examples",
+  "verificationStatus": "SCHEMA_EXAMPLE_NOT_LIVE_RESPONSE",
+  "gasEndpoint": "https://script.google.com/macros/s/AKfycbz0F4-HP8cp_Gc1Y03YZBEhaYpb-XVGVasFHdh29Kv5mjk9Ng0dROGuOFaMy_1vI1co/exec",
+
+  "version": {
+    "success": true,
+    "service": "AVA_ONE_TIME_OFF",
+    "apiVersion": 1,
+    "financialRevision": "EXAMPLE_FINANCIAL_REVISION",
+    "contentRevision": "EXAMPLE_CONTENT_REVISION",
+    "checkedAt": "2026-11-16T00:00:00.000Z"
+  },
+
+  "financial": {
+    "schemaVersion": 1,
+    "revision": "EXAMPLE_FINANCIAL_REVISION",
+    "publishedAt": "2026-11-16T00:00:00.000Z",
+    "data": {
+      "sourceSpreadsheetId": "1-QG1tnH0iTYLAzweJ6Gvj5JDN5p1YKIq9IONyvVIo4U",
+      "plans": [
+        {
+          "id": "year1",
+          "sheet": "1year 4%",
+          "rate": 0.04,
+          "balances": [
+            [5, 0.79327],
+            [10, 0.941745],
+            [15, 1.08109],
+            [20, 1.301945]
+          ]
+        },
+        {
+          "id": "year3",
+          "sheet": "3year 5%",
+          "rate": 0.05,
+          "balances": [
+            [5, 0.909675],
+            [10, 1.05582],
+            [15, 1.182455],
+            [20, 1.38798]
+          ]
+        },
+        {
+          "id": "year5",
+          "sheet": "5year 6%",
+          "rate": 0.06,
+          "balances": [
+            [5, 1.05287],
+            [10, 1.209585],
+            [15, 1.33906],
+            [20, 1.552325]
+          ]
+        },
+        {
+          "id": "rollover",
+          "sheet": "自動滾存",
+          "rate": 0,
+          "balances": [
+            [5, 1.11287],
+            [10, 1.64],
+            [20, 3.25]
+          ]
+        }
+      ]
+    }
+  },
+
+  "content": {
+    "success": true,
+    "service": "AVA_ONE_TIME_OFF",
+    "apiVersion": 1,
+    "revision": "EXAMPLE_CONTENT_REVISION",
+    "readAt": "2026-11-16T00:00:00.000Z",
+    "data": {
+      "salesFlow": [
+        {"pageId":"P1","order":1,"title":"了解目標","visible":true,"description":"了解資金目標及需要"},
+        {"pageId":"P2","order":2,"title":"資金安排","visible":true,"description":"設定一次性投入金額"},
+        {"pageId":"P3","order":3,"title":"銀行比較","visible":true,"description":"展示自行設定的銀行複息情境"},
+        {"pageId":"P4","order":4,"title":"提取選擇","visible":true,"description":"選擇四種官方表格安排"},
+        {"pageId":"P5","order":5,"title":"年度投影","visible":true,"description":"按官方指定年度結餘倍數投影"},
+        {"pageId":"P6","order":6,"title":"方案比較","visible":true,"description":"比較相同投入本金的剩餘保單結餘"},
+        {"pageId":"P7","order":7,"title":"總結","visible":true,"description":"整理選擇及下一步討論"}
+      ],
+      "content": [
+        {"id":"P1_TITLE","pageId":"P1","type":"標題","text":"一筆資金，可以有幾種未來？","note":""},
+        {"id":"P1_INTRO","pageId":"P1","type":"段落","text":"先了解客人想利用一筆現有資金做咩：保留彈性、安排持續現金流，定長線累積？","note":""},
+        {"id":"P2_TITLE","pageId":"P2","type":"標題","text":"你想點樣安排現有資金？","note":""},
+        {"id":"P3_TITLE","pageId":"P3","type":"標題","text":"如果將資金留喺銀行？","note":""},
+        {"id":"P4_TITLE","pageId":"P4","type":"標題","text":"你希望提取現金，還是留低滾存？","note":""},
+        {"id":"P5_TITLE","pageId":"P5","type":"標題","text":"年度結餘投影","note":""},
+        {"id":"P6_TITLE","pageId":"P6","type":"標題","text":"相同本金，不同安排","note":""},
+        {"id":"P7_TITLE","pageId":"P7","type":"標題","text":"下一步：選擇合適安排","note":""}
+      ],
+      "disclosures": [
+        {
+          "id": "WITHDRAWAL_TERMS",
+          "pageId": "P4",
+          "type": "未核實產品條款",
+          "text": "每年提取百分比來自 Sheet；開始提取年份、計算基數及實際付款日仍須正式條款確認。",
+          "verificationStatus": "待產品條款確認"
+        },
+        {
+          "id": "PAYOUT_NOT_VERIFIED",
+          "pageId": "P5",
+          "type": "未核實產品條款",
+          "text": "每年及累計提取金額的計算基數和時間未核實，暫不顯示。",
+          "verificationStatus": "待產品條款確認"
+        }
+      ]
+    }
+  },
+
+  "bootstrap": {
+    "success": true,
+    "service": "AVA_ONE_TIME_OFF",
+    "apiVersion": 1,
+    "financial": {
+      "schemaVersion": 1,
+      "revision": "EXAMPLE_FINANCIAL_REVISION",
+      "publishedAt": "2026-11-16T00:00:00.000Z",
+      "data": {
+        "sourceSpreadsheetId": "1-QG1tnH0iTYLAzweJ6Gvj5JDN5p1YKIq9IONyvVIo4U",
+        "plans": []
+      }
+    },
+    "officialContent": {
+      "salesFlow": [],
+      "content": [],
+      "disclosures": []
+    },
+    "contentRevision": "EXAMPLE_CONTENT_REVISION"
+  },
+
+  "instructionsForCodex": [
+    "These are illustrative response schemas, NOT captured GAS responses.",
+    "Do not treat example revisions or timestamps as live data.",
+    "The financial and content examples are abbreviated. Populate complete fixtures from verified repository snapshots.",
+    "In bootstrap, financial and officialContent must contain the complete corresponding datasets, not the empty arrays shown as structural placeholders.",
+    "Implement the four action parsers using the specified nested field names.",
+    "Preserve validation of 60 financial rows, seven pages, 23 content entries and eight disclosures.",
+    "Run contract and browser regression tests.",
+    "Live GAS connectivity and App synchronization remain NOT VERIFIED until genuine HTTP responses are obtained.",
+    "Continue existing Draft PR #1. Do not merge or deploy."
+  ]
+}

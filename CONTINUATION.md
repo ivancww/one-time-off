@@ -31,3 +31,7 @@ The connected Sheet read confirmed the three content tabs have seven pages, 23 c
 ## GAS contract boundary preparation
 
 No JSON examples were present in the task context. A fail-closed four-parser contract boundary and a required-authorizer same-origin handler are prepared with synthetic-only tests. The boundary checks the source version before and after reading the other actions and validates the fixed P1–P7, four plans/60 rows, 23 entries and eight disclosures. It intentionally has no guessed GAS parser or production transport. The real GAS contract, endpoint access policy and redirects, authenticated gateway and live connection remain NOT VERIFIED; the GitHub Pages-compatible gateway design and required fixture mapping are in `docs/OFFICIAL-READ.md`.
+
+## Owner-described GAS envelope fields
+
+`server/gas-actions.mjs` now parses the four Owner-described top-level action envelopes, verifies `success` on the three described success responses, checks independent financial/content revisions before and after the read, and combines their pair into the internal revision. Unit fixtures use hypothetical nested data; actual JSON and full Code.gs remain unavailable. Nested financial/content mapping, bootstrap cross-check and server-owned transport are required injected callbacks and deliberately have no guessed default. Live GAS, gateway authorization and production sync remain NOT VERIFIED. No production access or deployment was attempted.

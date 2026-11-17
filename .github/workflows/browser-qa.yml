@@ -28,6 +28,7 @@ jobs:
       - run: node tests/browser_qa.cjs
       - run: node tests/browser_user_check.cjs
       - run: node tests/browser_release.cjs
+      - run: node tests/browser_release_updates.cjs
       - run: node tests/browser_pwa.cjs
       - run: node tests/browser_projection.cjs
       - run: node tests/browser_official_data.cjs

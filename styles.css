@@ -256,3 +256,18 @@ body.ava-front .panel.ava-front__content { width:100%; min-width:0; }
 @media(max-width:650px){.ava-front .conversation-grid{grid-template-columns:1fr}.ava-front .ava-card--interactive{min-height:108px;padding:18px}.ava-front .withdrawal-result{grid-template-columns:1fr}.ava-front .timeline-rail__item{flex-basis:84px;min-height:80px}.ava-front .time-bar-heading{font-size:13px;padding-inline:8px}.ava-front .p4-visual-story{padding:16px}}
 
 .ava-front .p4-total-difference strong { color:var(--ava-color-danger); }
+
+
+/* App-owned release update UI, using Mother Design tokens. */
+.ava-front .release-history-button{border:1px solid var(--ava-color-border);background:var(--ava-color-surface);color:var(--ava-color-text);border-radius:var(--ava-control-radius);min-height:var(--ava-touch-target);padding:8px 14px;white-space:nowrap;cursor:pointer}
+.ava-front .release-history-button:hover,.ava-front .release-history-button:focus-visible{border-color:var(--ava-color-primary);outline-offset:2px}
+.ava-release-dialog{max-width:min(550px,calc(100vw - 32px));width:100%;max-height:calc(100dvh - 48px);overflow:auto;border:1px solid var(--ava-color-border);border-radius:var(--ava-card-radius);box-shadow:var(--ava-shadow-md);background:var(--ava-color-surface);color:var(--ava-color-text);padding:clamp(18px,3vw,28px);margin:auto}
+.ava-release-dialog::backdrop{background:rgba(0,0,0,.5)}
+.ava-release-dialog h2{margin:0 0 14px;font-size:var(--ava-type-section);line-height:1.3}
+.ava-release-dialog .release-summary{color:var(--ava-color-text-secondary);margin-bottom:14px}
+.ava-release-dialog ul{padding-inline-start:22px;line-height:1.6;max-height:45vh;overflow:auto}
+.ava-release-dialog li+li{margin-top:8px}
+.ava-release-dialog .release-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:12px;margin-top:20px}
+.ava-release-dialog .release-actions button{min-height:var(--ava-touch-target);border:1px solid var(--ava-color-border);border-radius:var(--ava-control-radius);padding:10px 16px;cursor:pointer}
+.ava-release-dialog .release-actions .release-primary{background:var(--ava-color-primary);border-color:var(--ava-color-primary);color:var(--ava-color-on-primary)}
+@media(max-width:500px){.ava-front .release-history-button{font-size:13px;padding:6px 9px}.ava-release-dialog{padding:18px}.ava-release-dialog .release-actions{flex-direction:column}.ava-release-dialog .release-actions button{width:100%}}

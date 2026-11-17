@@ -210,7 +210,8 @@ document.querySelectorAll("[data-withdraw-start]").forEach(b=>b.onclick=()=>{sta
 document.querySelectorAll("[data-withdraw-year]").forEach(b=>b.onclick=()=>{state.withdrawalYear=Number(b.dataset.withdrawYear);render();document.querySelector(`[data-withdraw-year="${state.withdrawalYear}"]`)?.focus()});
 document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.choice;render()});
 $("#back").onclick=()=>{if(at>0)go(flow[at-1].key)};$("#next").onclick=()=>{if(at<flow.length-1)go(flow[at+1].key)};
-async function saveUserDraft(){if(userSaving)return;userSaving=true;const snapshot=cloneUser(userDraft);try{await writeUserData(snapshot);userSaved=snapshot;userDirty=userChanged();userError=userDirty?"已儲存較早版本，較新的修改仍未儲存。":"已儲存並核對本機資料。"}catch(e){userError="儲存失敗，草稿仍保留；請重試。"}finally{userSaving=false}render()}
+async function saveUserDraft(){if(userSaving)return;userSaving=true;const snapshot=cloneUser(userDraft);try{await writeUserData(snapshot);userSaved=snapshot;userDirty=userChanged();userError=userDirty?"已儲存較早版本，較新的修改仍未儲存。":"已儲存並核對本機資料。"}catch(e){userError="儲存失敗，草稿仍保留；請重試。"}finally{userSaving=false}render();return !userDirty && !userError.includes("儲存失敗")}
+if(typeof window!=="undefined")window.__avaSaveUserDraft=entry==="user"?saveUserDraft:null;
 if(entry==="user"){
  $("#preview-user").onclick=()=>{if(!validateCurrent())return;previewUser=true;render()};
  const note=$("#user-note"),key=state.step===0?"introNote":"summaryNote";
@@ -240,6 +241,7 @@ function refreshOfficial(){
  refreshingOfficial=(async()=>{try{officialStatus=await loadOfficialData({snapshot:bundledData,endpoint:OFFICIAL_ENDPOINT,cache:officialCache});if(officialStatus.publishedAt)lastSuccessfulRead=officialStatus.publishedAt;data=officialStatus.data;officialContent=data.content||bundledData.content;officialContent.pages.forEach((p,i)=>{names[i]=p[2]});officialContent.entries.filter(r=>/^P1_GOAL[1-4]$/.test(r[0])).forEach((r,i)=>{goalLabels[i]=r[3]});snapshotValid=validDataset(data);years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[]}catch(e){snapshotValid=false;officialStatus={mode:"unavailable",error:true}}updateSourceDisplay()})().finally(()=>{refreshingOfficial=null});return refreshingOfficial;
 }
 if(typeof window!=="undefined" && typeof window.addEventListener==="function" && typeof document!=="undefined"){
+ window.__avaHasUnsavedDraft=()=>userDirty || userSaving;
  window.addEventListener("beforeunload",e=>{if(userDirty){e.preventDefault();e.returnValue=""}});
  (async()=>{await refreshOfficial();try{const saved=await readUserData();if(saved!==undefined)userSaved=migrateUserData(saved);userDraft=cloneUser(userSaved);userReady=true}catch(e){userReady=false}render()})();
 }

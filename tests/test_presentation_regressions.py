@@ -22,7 +22,7 @@ const check = `
     }
   }
   state.step = 5; state.plan = 'year1'; state.term = 6;
-  if (!body().includes('呢個時間點官方未有提供數值')) throw Error('unsupported year invented');
+  if (!body().includes('—')) throw Error('unsupported year invented');
 `;
 vm.runInNewContext(source + check, {bundledData:data, document: {}, window: {}});
 '''

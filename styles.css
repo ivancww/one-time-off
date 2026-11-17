@@ -254,3 +254,5 @@ body.ava-front .panel.ava-front__content { width:100%; min-width:0; }
 .ava-front .ava-status--warning{background:var(--ava-color-background);color:var(--ava-color-text-secondary);border-radius:14px;padding:18px;margin:16px 0}
 .ava-front .flow-context{max-width:100%}
 @media(max-width:650px){.ava-front .conversation-grid{grid-template-columns:1fr}.ava-front .ava-card--interactive{min-height:108px;padding:18px}.ava-front .withdrawal-result{grid-template-columns:1fr}.ava-front .timeline-rail__item{flex-basis:84px;min-height:80px}.ava-front .time-bar-heading{font-size:13px;padding-inline:8px}.ava-front .p4-visual-story{padding:16px}}
+
+.ava-front .p4-total-difference strong { color:var(--ava-color-danger); }

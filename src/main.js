@@ -135,7 +135,7 @@ default:
   +withdrawalStartRail()
   +'<h3>開始之後，時間行落去會點？</h3>'
   +ageRail("withdrawal",annualYears(),state.withdrawalYear,"data-withdraw-year")
-  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>—</strong></div><div><span>累積已使用</span><strong>—</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(state.withdrawalStart==='none'?projectAt(p,state.withdrawalYear):null)+'</strong><small>'+(state.withdrawalStart==='none'?'未提取情境的官方保單結餘':'領取後餘額尚未核實，不能以未提取結餘代替')</small></div></div>'
+  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>—</strong></div><div><span>累積已使用</span><strong>—</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(state.withdrawalStart==='none'?projectAt(p,state.withdrawalYear):null)+'</strong><small>'+(state.withdrawalStart==='none'?'未提取情境的官方保單結餘':'領取後餘額尚未核實，不能以未提取結餘代替')+'</small></div></div>'
   +'<p role="status" class="ava-status ava-status--warning">未有已核實的領取起始年、每年金額、累積領取及領取後結餘計算基準。以上金額暫不顯示，唔會用 5PAY 嘅提取公式代替 One-Time-Off；正式條款核實後先可以計算。</p>'
   +'<p>你的資金目標：'+escapeText(purposeChoices.find(c=>c[0]===state.purpose)?.[1]||"未選擇")+'</p>'
   +'<p data-edit-paragraph="2">'+escapeText(officialContent.entries.find(e=>e[0]==="P7_NOTE")?.[3]||"可同客人討論使用時間、流動需要及產品限制。")+'</p>'

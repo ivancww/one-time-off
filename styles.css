@@ -22,3 +22,44 @@ textarea{width:100%;min-height:88px;padding:10px 12px;border:1px solid #bac8da;b
 #source-diagnostics[hidden]{display:none}#source-diagnostics{margin:0 0 16px;padding:12px 14px;border:1px solid #cbd9e8;border-radius:10px;background:#fff;color:#34485f;font-size:13px}#source-diagnostics summary{cursor:pointer;font-weight:700;min-height:32px;color:#125da0}#source-diagnostics dl{display:grid;gap:6px;margin:8px 0 0}#source-diagnostics dl div{display:grid;grid-template-columns:minmax(7em,auto) minmax(0,1fr);gap:12px}#source-diagnostics dt{font-weight:700}#source-diagnostics dd{margin:0;overflow-wrap:anywhere}@media(max-width:400px){#source-diagnostics dl div{grid-template-columns:1fr;gap:2px}}
 
 .shell{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}#return-ava{gap:6px}#return-ava svg{flex:none}
+
+
+/* Canonical AVA Frontstage alignment — Platform Design System owns all values. */
+body.ava-front { background:var(--ava-color-background); color:var(--ava-color-text); font-family:var(--ava-font-family); }
+.ava-front .shell.ava-front__container { box-sizing:border-box; width:100%; max-width:var(--ava-content-width); margin:0 auto; padding:var(--ava-page-padding-block) var(--ava-page-padding-inline); padding-left:var(--ava-page-padding-left); padding-right:var(--ava-page-padding-right); padding-bottom:max(var(--ava-space-24),env(safe-area-inset-bottom)); }
+.ava-front .shell > header.ava-front__header { position:relative; top:auto; min-height:var(--ava-nav-height); margin:0 0 var(--ava-space-20); padding:var(--ava-space-12) var(--ava-page-padding-inline); border:var(--ava-border-width) solid var(--ava-color-border); border-radius:var(--ava-card-radius); background:var(--ava-color-surface); box-shadow:var(--ava-shadow-sm); }
+.ava-front .brand { color:var(--ava-color-primary); letter-spacing:.04em; font-weight:var(--ava-weight-extrabold); }
+.ava-front .panel.ava-front__content { border:var(--ava-border-width) solid var(--ava-color-border); border-radius:var(--ava-card-radius); padding:var(--ava-card-padding); background:var(--ava-color-surface); box-shadow:var(--ava-shadow-md); }
+.ava-front h1 { font-family:var(--ava-font-family); font-size:var(--ava-type-page); font-weight:var(--ava-weight-extrabold); line-height:var(--ava-line-title); color:var(--ava-color-text); }
+.ava-front h2 { font-size:var(--ava-type-section); }
+.ava-front small,.ava-front .muted,.ava-front footer,.ava-front .calculation-note { color:var(--ava-color-text-secondary); }
+.ava-front .flow-progress { margin:0 0 var(--ava-space-12); color:var(--ava-color-text-secondary); font-size:var(--ava-type-label); font-weight:var(--ava-weight-semibold); }
+.ava-front .choice { border:var(--ava-border-width) solid var(--ava-color-control-border); border-radius:var(--ava-card-radius); padding:var(--ava-space-20); min-height:var(--ava-touch-target); color:var(--ava-color-text); background:var(--ava-color-surface); font-family:var(--ava-font-family); font-size:var(--ava-type-body); }
+.ava-front .choice[aria-pressed=true] { border-color:var(--ava-color-brand); background:var(--ava-color-selected); box-shadow:inset 0 0 0 var(--ava-border-width) var(--ava-color-brand); }
+.ava-front input,.ava-front select,.ava-front textarea { min-height:var(--ava-control-height); border:var(--ava-border-width) solid var(--ava-color-control-border); border-radius:var(--ava-control-radius); font:inherit; background:var(--ava-color-surface); color:var(--ava-color-text); }
+.ava-front input:focus-visible,.ava-front select:focus-visible,.ava-front textarea:focus-visible,.ava-front button:focus-visible,.ava-front a:focus-visible { outline:var(--ava-focus-width) solid var(--ava-color-focus); outline-offset:var(--ava-focus-offset); }
+.ava-front .primary,.ava-front .secondary { display:inline-flex; align-items:center; justify-content:center; min-height:var(--ava-control-height); padding:var(--ava-space-8) var(--ava-space-16); border-radius:var(--ava-control-radius); font-family:var(--ava-font-family); font-size:var(--ava-type-button); font-weight:var(--ava-weight-bold); line-height:var(--ava-line-title); }
+.ava-front .primary { background:var(--ava-color-primary); border:var(--ava-border-width) solid transparent; color:var(--ava-color-on-primary); }
+.ava-front .secondary { background:var(--ava-color-surface); border:var(--ava-border-width) solid var(--ava-color-control-border); color:var(--ava-color-text-secondary); }
+.ava-front .actions.ava-front__actions { display:flex; gap:var(--ava-gap-component); justify-content:space-between; margin-top:var(--ava-gap-section); }
+.ava-front .actions.ava-front__actions button { flex:1; }
+.ava-front .metric,.ava-front .note,.ava-front .anchor-metric,.ava-front .result-card { background:var(--ava-color-surface); border:var(--ava-border-width) solid var(--ava-color-border); border-radius:var(--ava-card-radius); box-shadow:var(--ava-shadow-sm); padding:var(--ava-card-padding); }
+.ava-front .metric { background:var(--ava-color-brand-soft); }
+.ava-front .anchor-metric strong,.ava-front .result-card strong { font-size:var(--ava-type-presentation-number); }
+.ava-front .year-chip { border:var(--ava-border-width) solid var(--ava-color-control-border); border-radius:var(--ava-control-radius); color:var(--ava-color-text); background:var(--ava-color-surface); }
+.ava-front .year-chip[aria-pressed=true] { background:var(--ava-color-primary); border-color:var(--ava-color-primary); color:var(--ava-color-on-primary); }
+.ava-front .chart-fill { background:var(--ava-color-primary); }
+.ava-front .chart-track { background:var(--ava-color-track); }
+.ava-front #return-ava { min-height:var(--ava-touch-target); border:var(--ava-border-width) solid var(--ava-color-control-border); border-radius:var(--ava-control-radius); background:var(--ava-color-surface); color:var(--ava-color-primary); }
+.ava-front .user-actions { display:flex; flex-wrap:wrap; gap:var(--ava-gap-component); }
+.ava-front .user-actions > p,.ava-front .user-actions > label,.ava-front .user-actions > input { flex-basis:100%; }
+.ava-front .user-actions button { margin:0; }
+.ava-front .table-wrap { max-width:100%; }
+.ava-front .table-wrap th,.ava-front .table-wrap td { border-color:var(--ava-color-border); }
+@media(max-width:650px) {
+ .ava-front .shell.ava-front__container { padding-inline:var(--ava-page-padding-inline); }
+ .ava-front .actions.ava-front__actions { flex-direction:row; }
+ .ava-front .actions.ava-front__actions button { min-width:0; }
+ .ava-front .panel.ava-front__content { padding:var(--ava-card-padding); }
+}
+@media print { .ava-front .flow-progress { display:none; } }

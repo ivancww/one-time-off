@@ -1,0 +1,27 @@
+name: Prepare One-Time-Off Pages artifact
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [codex/phase1-one-time-saving]
+permissions:
+  contents: read
+jobs:
+  artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build reviewed static assets only
+        env:
+          APP_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node tools/build-pages.mjs work/pages "$APP_SOURCE_SHA"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: one-time-off-static-${{ github.event.pull_request.head.sha || github.sha }}
+          path: work/pages/
+          include-hidden-files: true

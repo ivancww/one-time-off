@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ivancww/avaplatform
-          ref: 2be703cd7c1c1e44c6279d5503508c082d9951f9
+          ref: d248d068c8acec300bd08bcaca16a0022ef702dc
           path: work/platform-fixture
       - uses: actions/setup-node@v4
         with:
@@ -27,6 +27,7 @@ jobs:
           PLATFORM_CHECKOUT: ${{ github.workspace }}/work/platform-fixture
       - run: node tests/browser_qa.cjs
       - run: node tests/browser_user_check.cjs
+      - run: node tests/browser_release.cjs
       - run: node tests/browser_pwa.cjs
       - run: node tests/browser_projection.cjs
       - run: node tests/browser_official_data.cjs

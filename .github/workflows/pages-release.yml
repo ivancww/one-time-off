@@ -1,0 +1,55 @@
+name: Owner-approved One-Time-Off Pages release
+on:
+  workflow_dispatch:
+    inputs:
+      approved_sha:
+        description: Full reviewed main commit SHA explicitly approved by the Product Owner
+        type: string
+        required: true
+      approve_publish:
+        description: Product Owner approves publishing this exact main commit to configured Pages
+        type: boolean
+        default: false
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: one-time-off-pages-release
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'ivancww/one-time-off' && github.ref == 'refs/heads/main' && github.actor == github.repository_owner && inputs.approve_publish && inputs.approved_sha == github.sha
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build approved commit
+        env:
+          APP_SOURCE_SHA: ${{ github.sha }}
+        run: node tools/build-pages.mjs work/pages "$APP_SOURCE_SHA"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: work/pages
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Read existing Pages configuration without enabling it
+        id: pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: false
+      - name: Publish explicitly approved artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

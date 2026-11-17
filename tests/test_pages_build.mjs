@@ -1,0 +1,5 @@
+import assert from 'node:assert/strict';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {readFile,readdir,rm} from 'node:fs/promises';
+const output='work/pages-build-test-'+process.pid,sha='1'.repeat(40);
+try{execFileSync(process.execPath,['tools/build-pages.mjs',output,sha]);const top=await readdir(output);for(const excluded of ['server','tools','tests','.github','work'])assert(!top.includes(excluded));assert(top.includes('.nojekyll'));const release=JSON.parse(await readFile(output+'/release.json'));assert.equal(release.sourceSha,sha);assert.equal(release.dataMode,'snapshot');assert.equal(Object.keys(release.assets).length,8);const html=await readFile(output+'/index.html','utf8');assert(html.includes('name="official-data-endpoint" content=""'));assert(html.includes('href="./manifest.webmanifest"'));const sw=await readFile(output+'/sw.js','utf8');assert(sw.includes('self.registration.scope'));assert.equal(spawnSync(process.execPath,['tools/build-pages.mjs',output,sha]).status,1);console.log('Allowlisted static Pages artifact and unchanged snapshot config: PASS')}finally{await rm(output,{recursive:true,force:true})}

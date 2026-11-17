@@ -1,0 +1,41 @@
+name: One-Time-Off browser QA
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [codex/phase1-one-time-saving]
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ivancww/avaplatform
+          ref: d248d068c8acec300bd08bcaca16a0022ef702dc
+          path: work/platform-fixture
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save playwright@1.52.0
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/browser_platform_entry.cjs
+        env:
+          PLATFORM_CHECKOUT: ${{ github.workspace }}/work/platform-fixture
+      - run: node tests/browser_qa.cjs
+      - run: node tests/browser_user_check.cjs
+      - run: node tests/browser_release.cjs
+      - run: node tests/browser_pwa.cjs
+      - run: node tests/browser_projection.cjs
+      - run: node tests/browser_official_data.cjs
+      - run: node tests/browser_staging_gateway.cjs
+      - run: node tests/browser_gas_gateway.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: one-time-off-browser-screenshots
+          path: screenshots/
+          if-no-files-found: ignore

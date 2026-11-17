@@ -151,7 +151,7 @@ function body(){
  return html;
 }
 function validateCurrent(){
-  return [$("#capital"),$("#bankRate"),$("#bankYears")].every(field=>!field || field.reportValidity());
+  return [$("#currentAge"),$("#capital"),$("#bankRate"),$("#bankYears")].every(field=>!field || field.reportValidity());
 }
 function bindNumber(field,key,min,max,places){
   const update=()=>{
@@ -210,9 +210,12 @@ $("#app").innerHTML=renderedBody+userNote()+(entry==="user"?'<div class="user-ac
 function go(key){if(!validateCurrent())return;if(/^u-/.test(key)){customPageId=key}else{customPageId=null;state.step=Number(key)}render()}
 
 document.querySelectorAll("[data-method]").forEach(b=>b.onclick=()=>{state.method=b.dataset.method;go("1")});
+document.querySelectorAll("[data-purpose]").forEach(b=>b.onclick=()=>{state.purpose=b.dataset.purpose;go("2")});
 document.querySelectorAll("[data-bank-year]").forEach(b=>b.onclick=()=>{state.bankYears=Number(b.dataset.bankYear);state.term=state.bankYears;render();document.querySelector('[data-bank-year="'+state.bankYears+'"]')?.focus()});
 document.querySelectorAll("[data-goal]").forEach(b=>b.onclick=()=>{const i=+b.dataset.goal;state.goals=state.goals.includes(i)?state.goals.filter(x=>x!==i):[...state.goals,i];b.setAttribute("aria-pressed",state.goals.includes(i))});
 document.querySelectorAll("[data-year]").forEach(b=>b.onclick=()=>{state.term=Number(b.dataset.year);state.bankYears=state.term;render();document.querySelector(`[data-year="${state.term}"]`)?.focus()});
+document.querySelectorAll("[data-withdraw-start]").forEach(b=>b.onclick=()=>{state.withdrawalStart=b.dataset.withdrawStart;render();document.querySelector(`[data-withdraw-start="${state.withdrawalStart}"]`)?.focus()});
+document.querySelectorAll("[data-withdraw-year]").forEach(b=>b.onclick=()=>{state.withdrawalYear=Number(b.dataset.withdrawYear);render();document.querySelector(`[data-withdraw-year="${state.withdrawalYear}"]`)?.focus()});
 document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.choice;render()});
 $("#back").onclick=()=>{if(at>0)go(flow[at-1].key)};$("#next").onclick=()=>{if(at<flow.length-1)go(flow[at+1].key)};
 async function saveUserDraft(){if(userSaving)return;userSaving=true;const snapshot=cloneUser(userDraft);try{await writeUserData(snapshot);userSaved=snapshot;userDirty=userChanged();userError=userDirty?"已儲存較早版本，較新的修改仍未儲存。":"已儲存並核對本機資料。"}catch(e){userError="儲存失敗，草稿仍保留；請重試。"}finally{userSaving=false}render()}
@@ -232,6 +235,7 @@ if(entry==="user"){
 const savePreview=$("#save-preview");if(savePreview)savePreview.onclick=saveUserDraft;
 const exitPreview=$("#exit-preview");if(exitPreview)exitPreview.onclick=()=>{previewUser=false;render()};
 const cap=$("#capital");if(cap)bindNumber(cap,"capital",1,1000000000000,2);
+const age=$("#currentAge");if(age)age.addEventListener("input",()=>{const raw=age.value.trim();const valid=/^\d{1,3}$/.test(raw)&&Number(raw)>=0&&Number(raw)<=120;age.setCustomValidity(valid?"":"請輸入 0 至 120 歲的整數。");age.setAttribute("aria-invalid",String(!valid));if(valid)state.currentAge=Number(raw);});
 const rate=$("#bankRate");if(rate)bindNumber(rate,"bankRate",0,100,4);
 const bankYears=$("#bankYears");if(bankYears)bindNumber(bankYears,"bankYears",1,100,0);
 const arrangement=$("#arrangement");if(arrangement)arrangement.onchange=()=>{state.plan=arrangement.value;render()};

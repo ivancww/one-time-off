@@ -214,43 +214,43 @@ body.ava-front .panel.ava-front__content { width:100%; min-width:0; }
 /* 5PAY parity v0.3: P1/P2 conversation, P3 wealth editor, P4 age comparison,
    P5 single-premium operation, P6 values, P7 two-stage withdrawal selectors. */
 .ava-front .conversation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-block:24px 16px}
-.ava-front .ava-card--interactive{min-height:122px;display:flex;align-items:flex-start;gap:18px;border:1px solid #dce5f2;background:white;border-radius:20px;padding:24px;box-shadow:none}
+.ava-front .ava-card--interactive{min-height:122px;display:flex;align-items:flex-start;gap:18px;border:1px solid var(--ava-color-border);background:var(--ava-color-surface);border-radius:20px;padding:24px;box-shadow:none}
 .ava-front .ava-card--interactive strong{font-size:19px;font-weight:750}
 .ava-front .ava-card--interactive small{font-size:15px;line-height:1.5}
-.ava-front .ava-card--interactive .card-icon{width:44px;height:44px;flex:0 0 44px;background:#edf4ff;border-radius:16px;display:grid;place-items:center;color:#2456cf}
-.ava-front .p3-wealth-inputs{display:grid;gap:24px;background:#fff}
-.ava-front .p3-wealth-inputs .input-section{border:1px solid #e0e8f4;border-radius:18px;padding:20px;background:#fff;gap:10px}
-.ava-front .p3-wealth-inputs .input-section:last-child{background:#f5f7fa}
+.ava-front .ava-card--interactive .card-icon{width:44px;height:44px;flex:0 0 44px;background:var(--ava-color-brand-soft);border-radius:16px;display:grid;place-items:center;color:var(--ava-color-primary)}
+.ava-front .p3-wealth-inputs{display:grid;gap:24px;background:var(--ava-color-surface)}
+.ava-front .p3-wealth-inputs .input-section{border:1px solid var(--ava-color-border);border-radius:18px;padding:20px;background:var(--ava-color-surface);gap:10px}
+.ava-front .p3-wealth-inputs .input-section:last-child{background:var(--ava-color-background)}
 .ava-front .p3-wealth-inputs .input-section h3{font-size:19px;line-height:1.3;margin:0}
 .ava-front .p3-wealth-inputs .money-input{max-width:100%}
 .ava-front .p3-wealth-inputs #currentAge{width:100%}
-.ava-front .time-bar-card{margin:20px 0 28px;border:1px solid #e0e7f2;border-radius:18px;background:#fff;padding:22px 8px 14px;box-shadow:0 2px 5px rgba(21,40,70,.04);max-width:100%;min-width:0}
-.ava-front .time-bar-heading{display:flex;align-items:center;justify-content:space-between;padding:0 15px 18px;color:#53637b;font-size:15px;font-weight:650}
+.ava-front .time-bar-card{margin:20px 0 28px;border:1px solid var(--ava-color-border);border-radius:18px;background:var(--ava-color-surface);padding:22px 8px 14px;box-shadow:var(--ava-shadow-sm);max-width:100%;min-width:0}
+.ava-front .time-bar-heading{display:flex;align-items:center;justify-content:space-between;padding:0 15px 18px;color:var(--ava-color-text-secondary);font-size:15px;font-weight:650}
 .ava-front .timeline-rail{display:flex;gap:10px;padding:3px 8px 12px;overflow-x:auto;scrollbar-width:thin;overscroll-behavior-x:contain;scroll-snap-type:x proximity;min-width:0;max-width:100%;touch-action:pan-x pan-y}
-.ava-front .timeline-rail__item{flex:0 0 108px;min-height:92px;border:1px solid #dce4f0;border-radius:14px;background:#fff;display:grid;align-content:center;gap:6px;text-align:center;scroll-snap-align:center;color:#1b2942;padding:10px 6px}
+.ava-front .timeline-rail__item{flex:0 0 108px;min-height:92px;border:1px solid var(--ava-color-border);border-radius:14px;background:var(--ava-color-surface);display:grid;align-content:center;gap:6px;text-align:center;scroll-snap-align:center;color:var(--ava-color-text);padding:10px 6px}
 .ava-front .timeline-rail__item strong{font-size:22px;line-height:1.2}
-.ava-front .timeline-rail__item small{font-size:13px;color:#53637b}
-.ava-front .timeline-rail__item.is-selected,.ava-front .timeline-rail__item[aria-selected=true]{background:#213d8f;color:white;border-color:#213d8f}
-.ava-front .timeline-rail__item.is-selected small,.ava-front .timeline-rail__item[aria-selected=true] small{color:#fff}
+.ava-front .timeline-rail__item small{font-size:13px;color:var(--ava-color-text-secondary)}
+.ava-front .timeline-rail__item.is-selected,.ava-front .timeline-rail__item[aria-selected=true]{background:var(--ava-color-primary);color:var(--ava-color-on-primary);border-color:var(--ava-color-primary)}
+.ava-front .timeline-rail__item.is-selected small,.ava-front .timeline-rail__item[aria-selected=true] small{color:var(--ava-color-on-primary)}
 .ava-front .comparison-intro{text-align:center;font-size:18px;margin-top:24px}
-.ava-front .p4-visual-story{border:1px solid #dce4f0;border-radius:18px;padding:24px;margin:20px 0;background:#fff}
+.ava-front .p4-visual-story{border:1px solid var(--ava-color-border);border-radius:18px;padding:24px;margin:20px 0;background:var(--ava-color-surface)}
 .ava-front .p4-visual-story h3{margin:0 0 20px}
 .ava-front .p4-bar-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:15px 0 8px}
-.ava-front .p4-colored-bar{width:100%;height:26px;border-radius:11px;background:#eef2f7;overflow:hidden}
+.ava-front .p4-colored-bar{width:100%;height:26px;border-radius:11px;background:var(--ava-color-track);overflow:hidden}
 .ava-front .p4-colored-bar>span{display:block;height:100%;border-radius:11px;max-width:100%;transition:width 140ms ease}
-.ava-front .p4-color-bank{background:#9babc3}.ava-front .p4-color-saving{background:#2a55b8}
+.ava-front .p4-color-bank{background:var(--ava-color-track)}.ava-front .p4-color-saving{background:var(--ava-color-primary)}
 .ava-front .saving-phase{display:grid;gap:20px;margin:26px 0}
 .ava-front .saving-phase h2{margin:0}
 .ava-front .phase-flow{display:grid;gap:18px}
 .ava-front .phase-step{display:flex;gap:16px;align-items:center;min-height:68px}
-.ava-front .phase-step-number{display:grid;place-items:center;width:40px;height:40px;flex:0 0 40px;border-radius:50%;background:#edf4ff;color:#244899;font-size:18px;font-weight:750}
+.ava-front .phase-step-number{display:grid;place-items:center;width:40px;height:40px;flex:0 0 40px;border-radius:50%;background:var(--ava-color-brand-soft);color:var(--ava-color-primary);font-size:18px;font-weight:750}
 .ava-front .phase-step>div{display:grid;gap:5px;min-width:0}
 .ava-front .phase-step strong{font-size:22px}
-.ava-front .phase-flow-arrow{text-align:center;font-size:26px;color:#2861c8}
+.ava-front .phase-flow-arrow{text-align:center;font-size:26px;color:var(--ava-color-primary)}
 .ava-front .withdrawal-result{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}
-.ava-front .withdrawal-result>div{display:grid;gap:8px;min-width:0;background:#fff;border:1px solid #dce5f0;border-radius:16px;padding:20px}
+.ava-front .withdrawal-result>div{display:grid;gap:8px;min-width:0;background:var(--ava-color-surface);border:1px solid var(--ava-color-border);border-radius:16px;padding:20px}
 .ava-front .withdrawal-result strong{font-size:25px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-.ava-front .withdrawal-result small{font-size:12px;line-height:1.35;color:#64748b}
-.ava-front .ava-status--warning{background:#fff9e7;color:#9a5213;border-radius:14px;padding:18px;margin:16px 0}
+.ava-front .withdrawal-result small{font-size:12px;line-height:1.35;color:var(--ava-color-text-secondary)}
+.ava-front .ava-status--warning{background:var(--ava-color-background);color:var(--ava-color-text-secondary);border-radius:14px;padding:18px;margin:16px 0}
 .ava-front .flow-context{max-width:100%}
 @media(max-width:650px){.ava-front .conversation-grid{grid-template-columns:1fr}.ava-front .ava-card--interactive{min-height:108px;padding:18px}.ava-front .withdrawal-result{grid-template-columns:1fr}.ava-front .timeline-rail__item{flex-basis:84px;min-height:80px}.ava-front .time-bar-heading{font-size:13px;padding-inline:8px}.ava-front .p4-visual-story{padding:16px}}

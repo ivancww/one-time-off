@@ -135,7 +135,7 @@ default:
   +withdrawalStartRail()
   +'<h3>開始之後，時間行落去會點？</h3>'
   +ageRail("withdrawal",annualYears(),state.withdrawalYear,"data-withdraw-year")
-  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>—</strong></div><div><span>累積已使用</span><strong>—</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(projectAt(p,state.withdrawalYear))+'</strong><small>僅為來源該年保單結餘，不代表中途領取後餘額</small></div></div>'
+  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>—</strong></div><div><span>累積已使用</span><strong>—</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(state.withdrawalStart==='none'?projectAt(p,state.withdrawalYear):null)+'</strong><small>'+(state.withdrawalStart==='none'?'未提取情境的官方保單結餘':'領取後餘額尚未核實，不能以未提取結餘代替')</small></div></div>'
   +'<p role="status" class="ava-status ava-status--warning">未有已核實的領取起始年、每年金額、累積領取及領取後結餘計算基準。以上金額暫不顯示，唔會用 5PAY 嘅提取公式代替 One-Time-Off；正式條款核實後先可以計算。</p>'
   +'<p>你的資金目標：'+escapeText(purposeChoices.find(c=>c[0]===state.purpose)?.[1]||"未選擇")+'</p>'
   +'<p data-edit-paragraph="2">'+escapeText(officialContent.entries.find(e=>e[0]==="P7_NOTE")?.[3]||"可同客人討論使用時間、流動需要及產品限制。")+'</p>'
@@ -214,7 +214,7 @@ document.querySelectorAll("[data-purpose]").forEach(b=>b.onclick=()=>{state.purp
 document.querySelectorAll("[data-bank-year]").forEach(b=>b.onclick=()=>{state.bankYears=Number(b.dataset.bankYear);state.term=state.bankYears;render();document.querySelector('[data-bank-year="'+state.bankYears+'"]')?.focus()});
 document.querySelectorAll("[data-goal]").forEach(b=>b.onclick=()=>{const i=+b.dataset.goal;state.goals=state.goals.includes(i)?state.goals.filter(x=>x!==i):[...state.goals,i];b.setAttribute("aria-pressed",state.goals.includes(i))});
 document.querySelectorAll("[data-year]").forEach(b=>b.onclick=()=>{state.term=Number(b.dataset.year);state.bankYears=state.term;render();document.querySelector(`[data-year="${state.term}"]`)?.focus()});
-document.querySelectorAll("[data-withdraw-start]").forEach(b=>b.onclick=()=>{state.withdrawalStart=b.dataset.withdrawStart;render();document.querySelector(`[data-withdraw-start="${state.withdrawalStart}"]`)?.focus()});
+document.querySelectorAll("[data-withdraw-start]").forEach(b=>b.onclick=()=>{state.withdrawalStart=b.dataset.withdrawStart;const earliest=Number(state.withdrawalStart);if(Number.isFinite(earliest)&&state.withdrawalYear<earliest){state.withdrawalYear=annualYears().find(y=>y>=earliest)??state.withdrawalYear}render();document.querySelector(`[data-withdraw-start="${state.withdrawalStart}"]`)?.focus()});
 document.querySelectorAll("[data-withdraw-year]").forEach(b=>b.onclick=()=>{state.withdrawalYear=Number(b.dataset.withdrawYear);render();document.querySelector(`[data-withdraw-year="${state.withdrawalYear}"]`)?.focus()});
 document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.choice;render()});
 $("#back").onclick=()=>{if(at>0)go(flow[at-1].key)};$("#next").onclick=()=>{if(at<flow.length-1)go(flow[at+1].key)};

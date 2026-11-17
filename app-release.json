@@ -1,0 +1,40 @@
+{
+  "appId": "one-time-off",
+  "version": "0.3.2",
+  "releaseId": "one-time-off@0.3.2",
+  "published": true,
+  "publishedAt": "2026-11-17",
+  "title": "App 更新及版本管理",
+  "changes": [
+    "開啟 App 時自動檢查獨立 App 最新發布版本",
+    "如仍使用舊版，顯示必須更新提示並安全載入新版",
+    "版本更新內容及更新紀錄改由 One-Time-Off 自行顯示",
+    "保留 User Edit、離線功能與原有官方數據和計算"
+  ],
+  "history": [
+    {
+      "version": "0.3.2",
+      "publishedAt": "2026-11-17",
+      "title": "App 更新及版本管理",
+      "changes": [
+        "獨立 App 更新通知、版本檢查及安全強制更新"
+      ]
+    },
+    {
+      "version": "0.3.1",
+      "publishedAt": "2026-11-17",
+      "title": "銷售流程介面整理",
+      "changes": [
+        "流程底部細字清理、P7 四種回報安排"
+      ]
+    },
+    {
+      "version": "0.3.0",
+      "publishedAt": "2026-11-17",
+      "title": "七頁銷售流程重整",
+      "changes": [
+        "跟 5PAY 整理歲數、資金與時間展示；保留獨立財務回報數據"
+      ]
+    }
+  ]
+}

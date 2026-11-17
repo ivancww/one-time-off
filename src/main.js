@@ -46,7 +46,7 @@ function validateSnapshot(snapshot){
 }
 let snapshotValid=validateSnapshot(data);
 let years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[];
-const amountField=(id,label,val,min=1)=>'<label for="'+id+'">'+label+'</label><input id="'+id+'" inputmode="decimal" type="text" value="'+decimal(val)+'" data-min="'+min+'">';
+const amountField=(id,label,val,min=1)=>'<label for="'+id+'">'+label+'</label><div class="money-input">'+(id==="capital"?'<span aria-hidden="true">HK$</span>':'')+'<input id="'+id+'" inputmode="decimal" type="text" value="'+decimal(val)+'" data-min="'+min+'">'+(id==="bankRate"?'<span aria-hidden="true">%</span>':id==="bankYears"?'<span aria-hidden="true">年</span>':'')+'</div>';
 const metric=(name,value)=>'<div class="metric"><span>'+name+'</span><strong>'+value+'</strong></div>';
 function entryMode(search){
  const values=new URLSearchParams(search).getAll("avaEntry");

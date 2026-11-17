@@ -97,10 +97,10 @@ const p=plan(state.plan),year=state.term, projected=projectAt(p,year);
 switch(state.step){
 case 0:
  return titleBlock("P1",salesTitle("P1_TITLE","累積落嚟嘅財富，你通常會點處理？"),"先了解你平時點樣安排已經累積嘅資金。")
-  +optionCards(methodChoices,"method","○")+'<p data-edit-paragraph="0" class="quiet-note">你可以先講，我哋只係用選擇幫手接住之後嘅畫面。</p>';
+  +optionCards(methodChoices,"method","○")+'<p data-edit-paragraph="0">你可以先講，我哋只係用選擇幫手接住之後嘅畫面。</p>';
 case 1:
  return titleBlock("P2",salesTitle("P2_TITLE","呢種安排，你通常希望做到邊種效果？"),"了解你希望累積落嚟嘅財富為將來做到啲咩。")
-  +optionCards(purposeChoices,"purpose","✦")+'<p data-edit-paragraph="1" class="quiet-note">可以先選一個最重要嘅方向，之後再睇時間同安排。</p>';
+  +optionCards(purposeChoices,"purpose","✦")+'<p data-edit-paragraph="1">可以先選一個最重要嘅方向，之後再睇時間同安排。</p>';
 case 2:
  return titleBlock("P3",salesTitle("P3_TITLE","如果將時間加落去呢？"),"睇下你而家嘅資金，隨住時間會去到邊。")
   +'<div class="ava-card input-card p3-wealth-inputs">'

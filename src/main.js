@@ -101,7 +101,7 @@ function mediaHtml(media){if(!validMedia(media)||!media)return "";return media.s
 function disclosure(id){return officialContent.disclosures.find(row=>row[0]===id)?.[3]||""}
 function updateSourceDisplay(){
  const sourceNote=$("#official-source-note");if(sourceNote)sourceNote.textContent=disclosure("SOURCE_NOTE");
- const entry=entryMode(window.location.search),panel=$("#source-diagnostics");
+ const entry=entryMode(window.location.search),panel=$("#source-diagnostics");const diagnosticSection=$("#technical-status");if(diagnosticSection)diagnosticSection.hidden=entry!=="user"||previewUser;
  if(panel)panel.hidden=entry!=="user"||previewUser;
  const node=$("#source-status");if(node){const labels={snapshot:"手動快照：非即時，新鮮度未確認",cached:"本機快取：非即時",live:"已連接資料來源"};node.textContent=(labels[officialStatus.mode]||"資料不可用")+(officialStatus.revision?" · 版本 "+officialStatus.revision.slice(0,12):"")+(officialStatus.publishedAt?" · 資料時間 "+officialStatus.publishedAt:"")+(officialStatus.stale?" · 資料時間超過 7 日，請核實":"")+(officialStatus.error?" · 更新失敗":"")+(data.content?"":" · 官方內容使用非即時快照")}
  if(!panel)return;

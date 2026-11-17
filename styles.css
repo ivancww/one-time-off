@@ -63,3 +63,23 @@ body.ava-front { background:var(--ava-color-background); color:var(--ava-color-t
  .ava-front .panel.ava-front__content { padding:var(--ava-card-padding); }
 }
 @media print { .ava-front .flow-progress { display:none; } }
+
+
+/* AVA Independent App header: one platform identity, one app title, visible version. */
+.ava-front .app-header { display:flex; align-items:center; justify-content:space-between; gap:var(--ava-gap-component); }
+.ava-front .app-header-identity { display:flex; flex-direction:column; gap:var(--ava-space-4); min-width:0; }
+.ava-front .app-brand { display:inline-flex; align-items:center; gap:var(--ava-space-12); min-height:var(--ava-touch-target); color:var(--ava-color-text); text-decoration:none; }
+.ava-front .brand-mark { display:inline-flex; flex:0 0 var(--ava-touch-target); width:var(--ava-touch-target); height:var(--ava-touch-target); align-items:center; justify-content:center; color:var(--ava-color-on-primary); background:var(--ava-color-primary); border-radius:var(--ava-control-radius); font-size:var(--ava-type-section); font-weight:var(--ava-weight-extrabold); }
+.ava-front .brand-copy { display:flex; flex-direction:column; gap:var(--ava-space-4); min-width:0; }
+.ava-front .brand-identity { display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--ava-space-8); color:var(--ava-color-primary); font-size:var(--ava-type-card); font-weight:var(--ava-weight-extrabold); line-height:var(--ava-line-title); }
+.ava-front .app-version { font-size:var(--ava-type-caption); font-weight:var(--ava-weight-semibold); color:var(--ava-color-text-secondary); white-space:nowrap; }
+.ava-front .journey-title { color:var(--ava-color-text-secondary); font-size:var(--ava-type-support); line-height:var(--ava-line-copy); }
+.ava-front .app-mode-label { font-size:var(--ava-type-caption); color:var(--ava-color-text-secondary); }
+.ava-front .technical-status { margin-top:var(--ava-gap-component); padding:var(--ava-card-padding); border:var(--ava-border-width) solid var(--ava-color-border); border-radius:var(--ava-card-radius); background:var(--ava-color-surface); color:var(--ava-color-text-secondary); font-size:var(--ava-type-support); }
+.ava-front .technical-status[hidden] { display:none!important; }
+.ava-front #source-diagnostics { margin:0; }
+@media(max-width:650px) {
+ .ava-front .app-header { flex-wrap:wrap; }
+ .ava-front .brand-mark { flex-basis:var(--ava-touch-target); }
+ .ava-front .header-actions { margin-left:auto; }
+}

@@ -94,16 +94,16 @@ const p=plan(state.plan),year=state.term, projected=projectAt(p,year);
 switch(state.step){
 case 0:
  return titleBlock("P1",salesTitle("P1_TITLE","累積落嚟嘅財富，你通常會點處理？"),"先了解你平時點樣安排已經累積嘅資金。")
-  +optionCards(methodChoices,"method","○")+'<p data-edit-paragraph="0">你可以先講，我哋只係用選擇幫手接住之後嘅畫面。</p>';
+  +optionCards(methodChoices,"method","○")+'<p data-edit-paragraph="0"></p>';
 case 1:
  return titleBlock("P2",salesTitle("P2_TITLE","呢種安排，你通常希望做到邊種效果？"),"了解你希望累積落嚟嘅財富為將來做到啲咩。")
-  +optionCards(purposeChoices,"purpose","✦")+'<p data-edit-paragraph="1">可以先選一個最重要嘅方向，之後再睇時間同安排。</p>';
+  +optionCards(purposeChoices,"purpose","✦")+'<p data-edit-paragraph="1"></p>';
 case 2:
  return titleBlock("P3",salesTitle("P3_TITLE","如果將時間加落去呢？"),"睇下你而家嘅資金，隨住時間會去到邊。")
   +'<div class="ava-card input-card p3-wealth-inputs">'
   +'<div class="input-section"><h3>你而家幾多歲？</h3>'+inputCard("currentAge","由目前歲數開始，顯示日後各個時間點的歲數。",state.currentAge)+'</div>'
-  +'<div class="input-section"><h3>目前累積財富</h3>'+inputCard("capital",officialEntry("P2_AMOUNT","現有資金"),state.capital)+'<p class="quiet-note">呢筆係已累積嘅本金，唔係之後每年新投入。</p></div>'
-  +'<div class="input-section"><h3>目前銀行存款</h3>'+inputCard("bankRate",officialEntry("P3_RATE","銀行年息（可留空）"),state.bankRate)+'<p class="quiet-note">利率係自行設定的銀行情境，唔代表銀行實際或保證利率。</p></div>'
+  +'<div class="input-section"><h3>目前累積財富</h3>'+inputCard("capital",officialEntry("P2_AMOUNT","現有資金"),state.capital)+'</div>'
+  +'<div class="input-section"><h3>目前銀行存款</h3>'+inputCard("bankRate",officialEntry("P3_RATE","銀行年息（可留空）"),state.bankRate)+'</div>'
   +'</div>';
 case 3:
  return titleBlock("P4",salesTitle("P4_TITLE","如果同一筆錢，有另一種安排呢？"),"同一筆投入，睇下時間可以帶嚟咩變化。")
@@ -130,7 +130,7 @@ default:
   +'<h3>探索年齡及保單年度</h3>'
   +ageRail("withdrawal",annualYears(),state.withdrawalYear,"data-withdraw-year")
   +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'—')+'</strong></div><div><span>累積已使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'—')+'</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(state.plan==='rollover'?projectAt(p,state.withdrawalYear):null)+'</strong></div></div>'
-  +'<p data-edit-paragraph="2">'+escapeText(officialContent.entries.find(e=>e[0]==="P7_NOTE")?.[3]||"可同客人討論使用時間、流動需要及產品限制。")+'</p>';
+  +'<p data-edit-paragraph="2"></p>';
 
 }
 }

@@ -3,7 +3,7 @@ const scopeUrl=new URL(self.registration.scope);
 const prefix='ava-one-time-shell:'+encodeURIComponent(scopeUrl.pathname)+':';
 const metaName=prefix+'meta';
 const pointerUrl=new URL('__shell_pointer__',scopeUrl).href;
-const assets=['index.html','styles.css','src/main.js','src/official-data.mjs','data/official-snapshot.json','manifest.webmanifest','icon.svg'];
+const assets=['index.html','styles.css','design-system/tokens.css','design-system/components.css','design-system/frontend.css','src/main.js','src/official-data.mjs','data/official-snapshot.json','manifest.webmanifest','icon.svg'];
 const assetUrls=assets.map(x=>new URL(x,scopeUrl).href);
 let refreshing;
 async function pointer(){const meta=await caches.open(metaName),r=await meta.match(pointerUrl);return r?await r.text():null}

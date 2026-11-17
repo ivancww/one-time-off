@@ -146,3 +146,58 @@ body.ava-front .panel.ava-front__content { width:100%; min-width:0; }
  body.ava-front .flow-backbar { display:none; }
  body.ava-front > header.ava-front__header { border-bottom:0; }
 }
+
+
+/* 5PAY presentation parity: customer-led dialogue and fair same-money visual story. */
+.ava-front .flow-context { max-width:900px; margin:0 0 var(--ava-space-24); }
+.ava-front .eyebrow,.ava-front .card-kicker { color:var(--ava-color-brand); font-weight:var(--ava-weight-bold); font-size:var(--ava-type-label); }
+.ava-front .flow-context h1 { margin:var(--ava-space-8) 0 var(--ava-space-12); }
+.ava-front .flow-context p { color:var(--ava-color-text-secondary); font-size:var(--ava-type-body); margin:0; }
+.ava-front .conversation-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--ava-space-12); margin:var(--ava-space-16) 0; }
+.ava-front .ava-card { background:var(--ava-color-surface); border:var(--ava-border-width) solid var(--ava-color-border); border-radius:var(--ava-card-radius); box-shadow:var(--ava-shadow-sm); padding:var(--ava-card-padding); min-width:0; }
+.ava-front .ava-card--interactive { display:flex; gap:var(--ava-space-16); align-items:flex-start; text-align:left; min-height:100px; width:100%; color:var(--ava-color-text); }
+.ava-front .ava-card--interactive strong,.ava-front .ava-card--interactive small { display:block; }
+.ava-front .ava-card--interactive strong { font-size:var(--ava-type-body); }
+.ava-front .ava-card--interactive small { margin-top:var(--ava-space-8); font-size:var(--ava-type-support); color:var(--ava-color-text-secondary); line-height:var(--ava-line-copy); }
+.ava-front .ava-card--interactive[aria-pressed=true] { border-color:var(--ava-color-brand); background:var(--ava-color-selected); }
+.ava-front .card-icon { width:40px; height:40px; flex:0 0 40px; display:grid; place-items:center; border-radius:var(--ava-control-radius); background:var(--ava-color-brand-soft); color:var(--ava-color-brand); }
+.ava-front .optional-goals { margin-top:var(--ava-space-24); color:var(--ava-color-text-secondary); }
+.ava-front .optional-goals summary { min-height:var(--ava-touch-target); display:flex; align-items:center; cursor:pointer; color:var(--ava-color-primary); font-weight:var(--ava-weight-bold); }
+.ava-front .optional-goals .cards { margin-top:var(--ava-space-12); }
+.ava-front .input-section { display:grid; gap:var(--ava-space-12); min-width:0; }
+.ava-front .input-section h2 { margin:0; }
+.ava-front .input-card { margin:var(--ava-space-16) 0; }
+.ava-front .path-card,.ava-front .same-money,.ava-front .resource-card { background:var(--ava-color-surface); border:var(--ava-border-width) solid var(--ava-color-border); border-radius:var(--ava-card-radius); padding:var(--ava-card-padding); box-shadow:var(--ava-shadow-sm); min-width:0; }
+.ava-front .same-money { display:grid; gap:var(--ava-space-8); margin:var(--ava-space-16) 0; text-align:center; }
+.ava-front .same-money span,.ava-front .same-money small { color:var(--ava-color-text-secondary); }
+.ava-front .same-money strong { font-size:var(--ava-type-presentation-number); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.ava-front .bank-future-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--ava-space-20); margin:var(--ava-space-24) 0; }
+.ava-front .bank-future-grid > div { display:grid; gap:var(--ava-space-8); min-width:0; }
+.ava-front .bank-future-grid strong { font-size:clamp(20px,2.3vw,32px); overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+.ava-front .resource-bridge { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:var(--ava-space-12); align-items:center; margin:var(--ava-space-24) 0; }
+.ava-front .resource-card { display:grid; gap:var(--ava-space-12); min-height:130px; }
+.ava-front .resource-card span,.ava-front .resource-card small { color:var(--ava-color-text-secondary); }
+.ava-front .resource-card strong { font-size:var(--ava-type-section); }
+.ava-front .resource-card--new { background:var(--ava-color-brand-soft); border-color:var(--ava-color-brand); }
+.ava-front .bridge-plus { color:var(--ava-color-primary); font-size:var(--ava-type-section); font-weight:var(--ava-weight-bold); }
+.ava-front .time-controls { display:flex; flex-wrap:nowrap; gap:var(--ava-space-8); width:100%; max-width:100%; min-width:0; overflow-x:auto; overscroll-behavior-x:contain; touch-action:pan-x pan-y; scroll-snap-type:x proximity; padding:var(--ava-space-8) 0 var(--ava-space-12); }
+.ava-front .year-chip { flex:0 0 64px; min-width:64px; display:grid; align-content:center; gap:var(--ava-space-4); text-align:center; scroll-snap-align:center; min-height:70px; }
+.ava-front .year-chip strong { font-size:var(--ava-type-body); }
+.ava-front .year-chip[aria-pressed=true] { background:var(--ava-color-primary); border-color:var(--ava-color-primary); color:var(--ava-color-on-primary); }
+.ava-front .year-chip[aria-pressed=true] small { color:var(--ava-color-on-primary); }
+.ava-front .p4-simple-outcomes { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--ava-space-16); margin:var(--ava-space-16) 0; }
+.ava-front .p4-simple-outcome { display:grid; gap:var(--ava-space-12); border:var(--ava-border-width) solid var(--ava-color-border); border-radius:var(--ava-card-radius); padding:var(--ava-card-padding); min-width:0; background:var(--ava-color-surface); }
+.ava-front .p4-simple-outcome--saving { background:var(--ava-color-brand-soft); border-color:var(--ava-color-brand); }
+.ava-front .p4-simple-outcome span,.ava-front .p4-simple-outcome small { color:var(--ava-color-text-secondary); }
+.ava-front .p4-simple-outcome strong { font-size:clamp(22px,2.8vw,38px); overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+.ava-front .p4-total-difference { display:flex; justify-content:space-between; align-items:center; gap:var(--ava-space-16); border:var(--ava-border-width) solid var(--ava-color-border); border-radius:var(--ava-card-radius); padding:var(--ava-space-16); background:var(--ava-color-surface); margin-bottom:var(--ava-space-12); }
+.ava-front .p4-total-difference strong { font-size:var(--ava-type-section); overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+.ava-front .quiet-note { color:var(--ava-color-text-secondary); font-size:var(--ava-type-support); line-height:var(--ava-line-copy); }
+.ava-front .anchor-metric,.ava-front .result-card { min-width:0; }
+@media(max-width:650px){
+ .ava-front .conversation-grid,.ava-front .bank-future-grid,.ava-front .p4-simple-outcomes { grid-template-columns:1fr; }
+ .ava-front .resource-bridge { grid-template-columns:1fr; }
+ .ava-front .bridge-plus { text-align:center; transform:rotate(90deg); }
+ .ava-front .p4-total-difference { display:grid; }
+ .ava-front .year-chip { flex-basis:58px; min-width:58px; }
+}

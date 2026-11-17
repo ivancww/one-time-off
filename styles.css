@@ -201,3 +201,11 @@ body.ava-front .panel.ava-front__content { width:100%; min-width:0; }
  .ava-front .p4-total-difference { display:grid; }
  .ava-front .year-chip { flex-basis:58px; min-width:58px; }
 }
+
+
+/* 5PAY input hierarchy, without removing existing official and user field semantics. */
+.ava-front .money-input{display:flex;align-items:center;min-height:54px;overflow:hidden;border:var(--ava-border-width) solid var(--ava-color-control-border);border-radius:var(--ava-control-radius);background:var(--ava-color-surface)}
+.ava-front .money-input span{flex:0 0 auto;padding-inline:var(--ava-space-16);color:var(--ava-color-text-secondary);font-weight:var(--ava-weight-bold)}
+.ava-front .money-input input{display:block;flex:1 1 auto;width:100%;min-width:0;margin:0;padding-inline:var(--ava-space-16);min-height:52px;border:0;outline:0;background:transparent;font-size:clamp(18px,2vw,22px);font-variant-numeric:tabular-nums}
+.ava-front .money-input:focus-within{outline:var(--ava-focus-width) solid var(--ava-color-focus);outline-offset:var(--ava-focus-offset)}
+.ava-front .money-input input:focus-visible{outline:none}

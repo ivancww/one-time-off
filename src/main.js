@@ -240,6 +240,7 @@ function refreshOfficial(){
  refreshingOfficial=(async()=>{try{officialStatus=await loadOfficialData({snapshot:bundledData,endpoint:OFFICIAL_ENDPOINT,cache:officialCache});if(officialStatus.publishedAt)lastSuccessfulRead=officialStatus.publishedAt;data=officialStatus.data;officialContent=data.content||bundledData.content;officialContent.pages.forEach((p,i)=>{names[i]=p[2]});officialContent.entries.filter(r=>/^P1_GOAL[1-4]$/.test(r[0])).forEach((r,i)=>{goalLabels[i]=r[3]});snapshotValid=validDataset(data);years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[]}catch(e){snapshotValid=false;officialStatus={mode:"unavailable",error:true}}updateSourceDisplay()})().finally(()=>{refreshingOfficial=null});return refreshingOfficial;
 }
 if(typeof window!=="undefined" && typeof window.addEventListener==="function" && typeof document!=="undefined"){
+ window.__avaHasUnsavedDraft=()=>userDirty || userSaving;
  window.addEventListener("beforeunload",e=>{if(userDirty){e.preventDefault();e.returnValue=""}});
  (async()=>{await refreshOfficial();try{const saved=await readUserData();if(saved!==undefined)userSaved=migrateUserData(saved);userDraft=cloneUser(userSaved);userReady=true}catch(e){userReady=false}render()})();
 }

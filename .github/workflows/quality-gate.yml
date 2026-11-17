@@ -13,6 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Verify App version increment against base
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          node tools/check-release-governance.mjs
+      - name: Verify published release metadata
+        if: github.event_name != 'pull_request'
+        run: node tools/check-release-governance.mjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

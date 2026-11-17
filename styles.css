@@ -83,3 +83,15 @@ body.ava-front { background:var(--ava-color-background); color:var(--ava-color-t
  .ava-front .brand-mark { flex-basis:var(--ava-touch-target); }
  .ava-front .header-actions { margin-left:auto; }
 }
+
+
+/* Match AVA Medical sales-flow placement: Back inside the card at top-left,
+   while Next stays the bottom-right guided-flow action. */
+.ava-front .flow-card-top { display:flex; align-items:center; justify-content:flex-start; margin:0 0 var(--ava-space-16); }
+.ava-front .flow-card-back { flex:0 0 auto; min-width:var(--ava-touch-target); }
+.ava-front .actions.ava-front__actions { justify-content:flex-end; }
+.ava-front .actions.ava-front__actions #next { flex:0 1 auto; }
+@media(max-width:650px) {
+ .ava-front .flow-card-top { margin-bottom:var(--ava-space-12); }
+ .ava-front .actions.ava-front__actions #next { min-width:var(--ava-touch-target); }
+}

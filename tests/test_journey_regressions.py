@@ -32,7 +32,8 @@ vm.runInNewContext(source + `
   state.term = 6; if (!body().includes('無此年度數據')) throw Error('missing year must stay unavailable');
   state.goals = [1]; state.bankRate = 1.5; state.bankYears = 10; state.step = 6;
   if (!body().includes('客人關注：提取現金流')) throw Error('goal missing from summary');
-  if (!body().includes('1.5%') || !body().includes('10 年')) throw Error('bank assumptions missing from summary');
+  if (!body().includes('1.5%') || !body().includes('6 年')) throw Error('bank assumptions or shared comparison horizon missing from summary');
+  if (!body().includes('相同年期') && !body().includes('同一筆')) throw Error('comparison must preserve the same principal and horizon');
 `, {bundledData:data, document: {}, window: {}, URLSearchParams});
 '''
         subprocess.run(['node', '-e', script], cwd=ROOT, check=True)

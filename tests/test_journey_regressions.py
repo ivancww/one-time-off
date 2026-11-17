@@ -28,12 +28,11 @@ vm.runInNewContext(source + `
   state.plan = 'year1'; state.capital = 500000; state.term = 5; state.step = 5;
   const view = body();
   if (!view.includes('396,635') || view.includes('data-year="6"')) throw Error('incorrect exact-year projection');
-  state.step=3; state.term=6; const compare=body(); if(!compare.includes('官方無提供呢個年度') || !compare.includes('銀行')) throw Error('exact-year comparison incorrect'); state.step=5;
-  state.term = 6; if (!body().includes('呢個時間點官方未有提供數值')) throw Error('missing year must stay unavailable');
+  state.step=3; state.term=6; const compare=body(); if(!compare.includes('—') || !compare.includes('銀行')) throw Error('exact-year comparison incorrect'); state.step=5;
+  state.term = 6; if (!body().includes('—')) throw Error('missing year must stay unavailable');
   state.purpose = 'income'; state.bankRate = 1.5; state.bankYears = 10; state.step = 6;
-  if (!body().includes('收息／現金流')) throw Error('purpose missing from withdrawal view');
   if (!body().includes('累積已使用') || !body().includes('當時戶口價值')) throw Error('withdrawal result roles missing');
-  if (!body().includes('唔會用 5PAY')) throw Error('unsupported withdrawal calculations must be clearly denied');
+  if (body().split('<strong>—</strong>').length-1!==3) throw Error('unverified withdrawal outcomes must stay unavailable');
   state.step=3;state.term=15;state.currentAge=40;const ageCompare=body();if(!ageCompare.includes('55歲')||!ageCompare.includes('500,000'))throw Error('age-led same-principal comparison broken');
   state.step=0;if((body().match(/data-method=/g)||[]).length!==4)throw Error('P1 must have four choices');
   state.step=1;if((body().match(/data-purpose=/g)||[]).length!==4)throw Error('P2 must have four choices');

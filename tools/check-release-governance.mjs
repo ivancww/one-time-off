@@ -13,8 +13,10 @@ const base=process.env.BASE_SHA;
 if(base){
  const changed=execFileSync("git",["diff","--name-only",base,"HEAD"],{encoding:"utf8"}).split("\n");
  if(changed.some(x=>files.includes(x))){
-  const oldManifest=JSON.parse(execFileSync("git",["show",base+":app-release.json"],{encoding:"utf8"}));
-  if(!gt(manifest.version,oldManifest.version))throw Error("Production-facing App change without a greater version");
+  let priorVersion;
+  try{priorVersion=JSON.parse(execFileSync("git",["show",base+":app-release.json"],{encoding:"utf8",stdio:["ignore","pipe","ignore"]})).version}
+  catch{const prior=execFileSync("git",["show",base+":index.html"],{encoding:"utf8"});priorVersion=prior.match(/id="app-version"[^>]*>v(\d+\.\d+\.\d+)/)?.[1]}
+  if(!gt(manifest.version,priorVersion))throw Error("Production-facing App change without a greater version");
  }
 }
 console.log("App release/version manifest and semantic bump contract: PASS");

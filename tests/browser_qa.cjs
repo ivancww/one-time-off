@@ -4,8 +4,9 @@ async function goTo(page,target){
  let current=await node.getAttribute('data-page-key');
  if(current===target)return;
  if(/^\d+$/.test(current)&&/^\d+$/.test(target)){
+   const direction=Number(current)<Number(target)?'#next':'#back';
    for(let tries=0;tries<32&&current!==target;tries++){
-     await page.locator(Number(current)<Number(target)?'#next':'#back').click();
+     await page.locator(direction).click();
      current=await node.getAttribute('data-page-key');
    }
  }else{

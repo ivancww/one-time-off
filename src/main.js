@@ -10,7 +10,7 @@ function openOfficialCache(){return new Promise((resolve,reject)=>{const r=index
 const officialCache={async read(endpoint){const db=await openOfficialCache();try{return await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readonly"),r=tx.objectStore("cache").get("official-v1:"+endpoint);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}},async write(value,endpoint){const db=await openOfficialCache();try{await new Promise((resolve,reject)=>{const tx=db.transaction("cache","readwrite");tx.objectStore("cache").put(value,"official-v1:"+endpoint);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}finally{db.close()}}};
 const names=officialContent.pages.map(p=>p[2]);
 const goalLabels=officialContent.entries.filter(r=>/^P1_GOAL[1-4]$/.test(r[0])).map(r=>r[3]);
-const state={step:0,capital:500000,term:20,plan:"rollover",bankRate:1.5,bankYears:20,goals:[],method:"bank"};
+const state={step:0,capital:500000,term:15,plan:"rollover",bankRate:1.5,bankYears:15,goals:[],method:"bank",purpose:"flex",currentAge:null,withdrawalStart:"none",withdrawalYear:15};
 const $=s=>document.querySelector(s);
 // Only these user-owned notes are editable. Financial facts and disclosures are not.
 const userPages=[0,1,2,3,4,5,6], userKeys=["introNote","summaryNote"];
@@ -57,41 +57,89 @@ function entryMode(search){
 function annualPresentation(p,v,project){
  return '<div class="result-card"><span class="card-kicker">第 '+state.term+' 年 · '+escapeText(p.sheet)+'</span><strong>'+(project===null?'無此年度數據':'HK$ '+money(project))+'</strong><span>'+(v===null?'此安排沒有提供此年度。':'一次性投入 × 結餘倍數 '+multiplierText(v))+'</span></div><details class="annual-details"><summary>__OFFICIAL_P5_DETAILS__</summary><div class="table-wrap" tabindex="0" role="region" aria-label="年度結餘表"><table><thead><tr><th>保單年度</th><th>每年提取百分比</th><th>結餘倍數</th><th>預計結餘 HK$</th></tr></thead><tbody>'+p.balances.map(([year,multiplier])=>'<tr><td>'+year+' 年</td><td>'+decimal(p.rate*100)+'%</td><td>'+multiplierText(multiplier)+'×</td><td>'+money(state.capital*multiplier)+'</td></tr>').join('')+'</tbody></table></div></details><p class="calculation-note">__OFFICIAL_EXACT_YEAR__ __OFFICIAL_PAYOUT_NOT_VERIFIED__</p>';
 }
-const SALES_PAGE_NAMES=["了解現有資金","銀行本金","銀行時間","現有安排結果","另一筆安排","同本金比較","總結"];
+
+const SALES_PAGE_NAMES=["累積財富的安排","理想資金效果","加入時間","同一筆錢的比較","計劃如何操作","時間會帶到邊","中途領取效果"];
 const methodChoices=[
- ["bank","銀行／現金","暫時留喺手上，方便需要時使用。"],
- ["fixed","定期","放一段時間，到期後再決定下一步。"],
- ["stock","股票／ETF","透過市場參與資產增長。"],
- ["bond","債券","關心利息與到期安排。"],
- ["planned","已有長期安排","已經有一部分資源為較長期準備。"],
- ["none","未有特別安排","有剩餘資金，但暫時未有固定做法。"]
+ ["bank","銀行／現金","保持靈活，隨時有需要可以使用。"],
+ ["fixed","定期／債券","先收取利息，日後再考慮其他安排。"],
+ ["invest","股票／基金","以市場投資作資產增長。"],
+ ["other","已有長期安排","已有部分財富用於長遠準備。"]
+];
+const purposeChoices=[
+ ["flex","保持靈活","需要用時可以比較容易處理。"],
+ ["grow","希望資金增長","時間拉長，資源可以慢慢增加。"],
+ ["income","收息／現金流","希望日後可以有持續收入。"],
+ ["future","為將來準備","留一筆資源作長期規劃。"]
 ];
 const moneyHK=n=>"HK$ "+money(n);
 const officialEntry=(id,fallback)=>escapeText(officialContent.entries.find(r=>r[0]===id)?.[3]||fallback);
-// New customer defaults apply until the authorized official source overrides an original Sheet title.
 const salesTitle=(id,fallback)=>{const current=officialContent.entries.find(r=>r[0]===id)?.[3],original=bundledData.content.entries.find(r=>r[0]===id)?.[3];return escapeText(current&&current!==original?current:fallback)};
-const sharedYear=()=>Number(state.term);
-const bankForYear=year=>state.capital*Math.pow(1+state.bankRate/100,year);
-const bankInfo=year=>'<div class="path-card bank-future" data-bank-year="'+year+'"><div class="card-kicker">維持銀行存款 · 第 '+year+' 年</div><div class="bank-future-grid"><div><span class="ava-label">現有本金</span><strong>'+moneyHK(state.capital)+'</strong></div><div><span class="ava-label">銀行假設年利率</span><strong>'+decimal(state.bankRate)+'%</strong></div><div><span class="ava-label">假設 '+year+' 年後結餘</span><strong>'+moneyHK(bankForYear(year))+'</strong></div></div><p class="calculation-note">銀行部分只係用戶自行輸入的固定年息複息情境；非銀行實際報價，亦唔代表未來每年利率不變。</p></div>';
-const bankYearRail=()=>'<div class="time-controls" role="group" aria-label="選擇銀行假設年期">'+[5,10,15,20,25,30,35,40,45,50,55,60].map(year=>'<button type="button" class="year-chip" data-bank-year="'+year+'" aria-pressed="'+(year===state.bankYears)+'"><strong>'+year+'</strong><small>年</small></button>').join('')+'</div>';
-const yearRail=(p=null)=>'<div class="time-controls" role="group" aria-label="選擇相同比較年期">'+(p?p.balances.map(row=>row[0]):years).map(year=>'<button type="button" class="year-chip" data-year="'+year+'" aria-pressed="'+(Number(year)===sharedYear())+'"><strong>'+year+'</strong><small>年</small></button>').join('')+'</div>';
-const sameMoneyHeader=(year=sharedYear())=>'<div class="same-money"><span>同一筆現有本金 · 第 '+year+' 年</span><strong>'+moneyHK(state.capital)+'</strong><small>銀行與 One-Time-Off 使用相同本金、相同年期；沒有新增加入的本金。</small></div>';
-const compareCards=(p,year)=>{const factor=exact(p,year),value=factor===null?null:state.capital*factor,bank=bankForYear(year);
- return '<div class="p4-simple-outcomes" data-comparison-year="'+year+'"><div class="p4-simple-outcome"><span>現有銀行存款 · 假設</span><strong>'+moneyHK(bank)+'</strong><small>年息 '+decimal(state.bankRate)+'% · '+year+' 年複息</small></div><div class="p4-simple-outcome p4-simple-outcome--saving"><span>One-Time-Off · '+escapeText(planLabel(p))+'</span><strong>'+(value===null?'無此年度數據':moneyHK(value))+'</strong><small>'+(factor===null?'不可插值或推算未有年度':('官方提供結餘倍數 '+multiplierText(factor)+'×'))+'</small></div></div>'
- +'<div class="p4-total-difference"><span>兩種安排第 '+year+' 年的結餘差額（非總回報）</span><strong>'+(value===null?'—':(value-bank>=0?'+':'')+moneyHK(value-bank))+'</strong></div>'
- +'<p class="calculation-note">'+escapeText(disclosure("COMPARISON_NOTE"))+' '+escapeText(disclosure("EXACT_YEAR"))+'</p>';
+const showAge=year=>Number.isInteger(state.currentAge)?(state.currentAge+Number(year))+"歲":"—歲";
+const yearValue=year=>Number(year);
+const bankForYear=year=>state.capital*Math.pow(1+state.bankRate/100,Number(year));
+const projectAt=(p,year)=>{const factor=exact(p,Number(year));return factor===null?null:state.capital*factor};
+const safeOutcome=(v)=>v===null?"—":moneyHK(v);
+const comparison=(year)=>{const bank=bankForYear(year),saving=projectAt(plan(state.plan),year),diff=saving===null?null:saving-bank;return {bank,saving,diff}};
+const titleBlock=(code,title,subtitle)=>'<div class="flow-context"><div class="eyebrow">'+code+' · 對話進行中</div><h1>'+title+'</h1><p>'+subtitle+'</p></div>';
+const optionCards=(items,field,icon)=>'<div class="conversation-grid">'+items.map(([id,name,desc])=>'<button type="button" class="ava-card ava-card--interactive" data-'+field+'="'+id+'" aria-pressed="'+(state[field]===id)+'"><span class="card-icon" aria-hidden="true">'+icon+'</span><span><strong>'+escapeText(name)+'</strong><small>'+escapeText(desc)+'</small></span></button>').join('')+'</div>';
+const ageRail=(key,items,selected,attribute="data-year")=>'<div class="time-bar-card timeline-rail-card"><div class="time-bar-heading"><span>向左右探索'+(key==="start"?"開始使用年齡":"年齡")+'</span><span>左右滑動查看更多</span></div><div class="timeline-rail" role="listbox" aria-label="年齡和保單年度">'+items.map(year=>'<button type="button" role="option" class="timeline-rail__item'+(Number(year)===Number(selected)?" is-selected":"")+'" '+attribute+'="'+year+'" aria-selected="'+(Number(year)===Number(selected))+'"><strong>'+showAge(year)+'</strong><small>第 '+year+' 年'+(key==="start"?"開始":"")+'</small></button>').join('')+'</div></div>';
+const withdrawalStartRail=()=>'<div class="time-bar-card timeline-rail-card"><h3>第一期 — 幾時開始使用？</h3><div class="timeline-rail" role="listbox" aria-label="選擇何時開始使用"><button type="button" class="timeline-rail__item'+(state.withdrawalStart==="none"?" is-selected":"")+'" data-withdraw-start="none" aria-selected="'+(state.withdrawalStart==="none")+'"><strong>自動滾存</strong><small>不提取</small></button>'+[5,10,15,20,25,30].map(year=>'<button type="button" class="timeline-rail__item'+(state.withdrawalStart===String(year)?" is-selected":"")+'" data-withdraw-start="'+year+'" aria-selected="'+(state.withdrawalStart===String(year))+'"><strong>'+showAge(year)+'</strong><small>第 '+year+' 年開始</small></button>').join('')+'</div></div>';
+const cardsCompare=(year)=>{const o=comparison(year);return '<div class="same-money"><span>同樣投入本金 · 第'+year+'年 · '+showAge(year)+'</span><strong>'+moneyHK(state.capital)+'</strong><small>一次性本金，銀行與 One-Time-Off 均用相同金額；沒有按年新增投入。</small></div><div class="p4-simple-outcomes" data-comparison-year="'+year+'"><div class="p4-simple-outcome"><span>維持銀行存款 · 假設</span><strong>'+moneyHK(o.bank)+'</strong><small>年息 '+decimal(state.bankRate)+'%（用戶輸入假設）</small></div><div class="p4-simple-outcome p4-simple-outcome--saving"><span>One-Time-Off · '+escapeText(planLabel(plan(state.plan)))+'</span><strong>'+safeOutcome(o.saving)+'</strong><small>'+(o.saving===null?"官方無提供呢個年度，唔作推算":"來源提供的該年保單結餘（不包括已提取款）")+'</small></div></div><div class="p4-total-difference"><span>第'+year+'年保單結餘與銀行假設結果差異（非總回報）</span><strong>'+safeOutcome(o.diff)+'</strong></div>';
 };
+const comparisonBars=(year)=>{const o=comparison(year),den=Math.max(o.bank,o.saving||0,1);const bar=(title,value,kind)=>'<div class="p4-bar-title"><strong>'+title+'</strong><strong>'+safeOutcome(value)+'</strong></div><div class="p4-colored-bar"><span class="p4-color-'+kind+'" style="width:'+(value===null?0:Math.max(0,Math.min(100,value/den*100)))+'%"></span></div>';
+return '<div class="p4-visual-story"><h3>同一筆錢，不同安排</h3>'+bar("維持銀行存款",o.bank,"bank")+bar("One-Time-Off 結餘",o.saving,"saving")+'<p class="calculation-note">銀行按固定年息假設；One-Time-Off 按來源該年度保單結餘倍數。提取款、費用及非保證項目未核實，圖表不能代表總回報。</p></div>';
+};
+const planPicker=()=>'<div class="ava-card input-card"><h3>選擇 One-Time-Off 安排</h3><label for="arrangement">官方回報資料</label><select id="arrangement">'+data.plans.map(p=>'<option value="'+p.id+'" '+(state.plan===p.id?"selected":"")+'>'+escapeText(planLabel(p))+'</option>').join('')+'</select><small>提取方案只顯示來源已提供的結餘，正式提取開始日、金額及支付方式仍待條款核實。</small></div>';
+const annualYears=()=>plan(state.plan).balances.map(r=>r[0]);
+const inputCard=(id,label,value)=>'<label class="ava-label" for="'+id+'">'+label+'</label><div class="money-input">'+(id==="capital"?'<span>HK$</span>':"")+'<input id="'+id+'" inputmode="'+(id==="currentAge"?"numeric":"decimal")+'" type="text" value="'+(value==null?"":decimal(value))+'" placeholder="'+(id==="currentAge"?"例如 40":id==="capital"?"例如 500000":"例如 1.5")+'">'+(id==="bankRate"?'<span>%</span>':"")+'</div>';
 function bodyRaw(){
-const p=plan(state.plan),v=exact(p,sharedYear()),project=v===null?null:state.capital*v;
-const bank=bankForYear(state.bankYears);
+const p=plan(state.plan),year=state.term, projected=projectAt(p,year);
 switch(state.step){
-case 0:return '<div class="flow-context"><span class="eyebrow">P1 · 對話進行中</span><h1>'+salesTitle("P1_TITLE","平時多出嚟嘅錢，你通常會點安排？")+'</h1><p data-edit-paragraph="0">如果換轉係你，你通常會點處理？</p></div><div class="conversation-grid">'+methodChoices.map(([id,title,description])=>'<button type="button" class="ava-card ava-card--interactive method-choice'+(state.method===id?' is-selected':'')+'" data-method="'+id+'" aria-pressed="'+(state.method===id)+'"><span class="card-icon" aria-hidden="true">○</span><span><strong>'+escapeText(title)+'</strong><small>'+escapeText(description)+'</small></span></button>').join('')+'</div><p data-edit-paragraph="1">你可以先講，我哋只係用呢個選擇幫手接住之後嘅畫面。</p><details class="optional-goals"><summary>你最關心資金邊方面？（可選多項）</summary><div class="cards">'+goalLabels.map((goal,i)=>'<button type="button" class="choice" data-goal="'+i+'" aria-pressed="'+state.goals.includes(i)+'">'+escapeText(goal)+'</button>').join('')+'</div></details>';
-case 1:return '<div class="flow-context"><span class="eyebrow">P2 · 現有資金</span><h1>'+salesTitle("P2_TITLE",state.method==="bank"||state.method==="fixed"?"你而家大約有幾多錢放喺銀行？":"其中有幾多資金，想用銀行安排作比較？") +'</h1><p>先計清楚目前已經有嘅一筆本金；唔係未來每年再供款。銀行只係今次模擬比較基準。</p></div><div class="ava-card input-card"><div class="input-section input-section--existing"><h2>現有銀行資金</h2>'+amountField("capital",officialEntry("P2_AMOUNT","一次性投入資金（HK$）"),state.capital,1)+'</div></div><div class="anchor-metric"><span>目前持有資金</span><strong>'+moneyHK(state.capital)+'</strong></div><p class="quiet-note">'+escapeText(officialContent.entries.find(r=>r[0]==="P2_NOTE")?.[3]||"")+'</p>';
-case 2:return '<div class="flow-context"><span class="eyebrow">P3 · 加入時間</span><h1>'+salesTitle("P3_TITLE","如果呢筆錢繼續放喺銀行，未來會有幾多？")+'</h1><p>本金唔變，先由銀行年息假設同時間睇起。</p></div><div class="ava-card input-card"><div class="input-section input-section--existing"><h2>銀行情境</h2>'+amountField("bankRate",officialEntry("P3_RATE","假設銀行年利率（%）"),state.bankRate,0)+amountField("bankYears",officialEntry("P3_YEARS","銀行情境年期（年）"),state.bankYears,1)+'</div></div><div class="grid bank-live-metrics">'+metric("同一筆銀行本金",moneyHK(state.capital))+metric("假設 "+state.bankYears+" 年後銀行結餘",moneyHK(bank))+'</div><p class="quiet-note">'+escapeText(disclosure("BANK_SCENARIO"))+'</p>';
-case 3:return '<div class="flow-context"><span class="eyebrow">P4 · 原有安排</span><h1>'+salesTitle("P4_TITLE","同一筆錢，時間行落去會點？")+'</h1><p>先睇維持銀行安排嘅模擬結果；再用同一筆本金睇另一種安排。</p></div>'+bankYearRail()+bankInfo(state.bankYears)+'<div class="resource-bridge"><div class="resource-card"><span>現時安排</span><strong>銀行存款</strong><small>現有本金 '+moneyHK(state.capital)+'</small></div><div class="bridge-plus" aria-hidden="true">→</div><div class="resource-card resource-card--new"><span>另一個可能安排</span><strong>One-Time-Off</strong><small>同一筆本金作比較，唔額外加本金</small></div></div><div class="ava-card input-card"><label for="arrangement">選擇 One-Time-Off 官方安排</label><select id="arrangement">'+data.plans.map(q=>'<option value="'+q.id+'" '+(state.plan===q.id?'selected':'')+'>'+escapeText(planLabel(q))+'</option>').join('')+'</select></div><p class="calculation-note">'+escapeText(disclosure("WITHDRAWAL_TERMS"))+'</p>';
-case 4:return '<div class="flow-context"><span class="eyebrow">P5 · 加入另一種安排</span><h1>'+salesTitle("P5_TITLE","如果同一筆資金，改用 One-Time-Off 會點？")+'</h1><p>先選取來源真正提供的年度，再比較同一段時間；唔插值，唔推算未提供的年度。</p></div>'+sameMoneyHeader()+yearRail(p)+compareCards(p,sharedYear())+annualPresentation(p,v,project);
-case 5:return '<div class="flow-context"><span class="eyebrow">P6 · 公平對比</span><h1>'+salesTitle("P6_TITLE","同樣本金、同樣時間，兩個安排有咩分別？")+'</h1><p>銀行只用你輸入的假設；One-Time-Off 只用官方表中已提供嘅結餘倍數。</p></div>'+sameMoneyHeader()+'<label for="term">選擇共同比較年期</label><select id="term">'+years.map(y=>'<option value="'+y+'" '+(y===sharedYear()?"selected":"")+'>'+y+' 年</option>').join('')+'</select>'+compareCards(p,sharedYear())+'<details class="annual-details"><summary>查看 One-Time-Off 四種安排在此年度的結餘</summary><div class="table-wrap" tabindex="0" role="region" aria-label="各方案結餘比較表"><table><thead><tr><th>安排</th><th>結餘倍數</th><th>預計結餘 HK$</th></tr></thead><tbody>'+data.plans.map(q=>{const x=exact(q,sharedYear());return '<tr><td>'+escapeText(planLabel(q))+'</td><td>'+(x===null?'—':multiplierText(x)+'×')+'</td><td>'+(x===null?'未有數據':money(x*state.capital))+'</td></tr>'}).join('')+'</tbody></table></div></details><p class="calculation-note">'+escapeText(disclosure("COMPARISON_NOTE"))+'</p>';
-default:return '<div class="flow-context"><span class="eyebrow">P7 · 對話總結</span><h1>'+salesTitle("P7_TITLE","一筆本金，兩種未來安排")+'</h1><p>重點係選擇適合資金用途、時間同流動需要嘅安排。</p></div>'+sameMoneyHeader() + compareCards(p,sharedYear())+'<div class="grid">'+metric("一次投入",moneyHK(state.capital))+metric("銀行年利率假設",decimal(state.bankRate)+"%")+metric("共同比較年期",sharedYear()+" 年")+metric("所選方案",escapeText(planLabel(p)))+'</div><p>客人關注：'+(state.goals.length?state.goals.map(i=>escapeText(goalLabels[i])).join("、"):"尚未選擇")+'</p><p data-edit-paragraph="2">__OFFICIAL_P7_NOTE__</p><button class="secondary" id="print">__OFFICIAL_P7_PRINT__</button><p class="note">__OFFICIAL_SUMMARY_NOTE__</p>';
+case 0:
+ return titleBlock("P1",salesTitle("P1_TITLE","累積落嚟嘅財富，你通常會點處理？"),"先了解你平時點樣安排已經累積嘅資金。")
+  +optionCards(methodChoices,"method","○")+'<p data-edit-paragraph="0">你可以先講，我哋只係用選擇幫手接住之後嘅畫面。</p>';
+case 1:
+ return titleBlock("P2",salesTitle("P2_TITLE","呢種安排，你通常希望做到邊種效果？"),"了解你希望累積落嚟嘅財富為將來做到啲咩。")
+  +optionCards(purposeChoices,"purpose","✦")+'<p data-edit-paragraph="1">可以先選一個最重要嘅方向，之後再睇時間同安排。</p>';
+case 2:
+ return titleBlock("P3",salesTitle("P3_TITLE","如果將時間加落去呢？"),"睇下你而家嘅資金，隨住時間會去到邊。")
+  +'<div class="ava-card input-card p3-wealth-inputs">'
+  +'<div class="input-section"><h3>你而家幾多歲？</h3>'+inputCard("currentAge","由目前歲數開始，顯示日後各個時間點的歲數。",state.currentAge)+'</div>'
+  +'<div class="input-section"><h3>目前累積財富</h3>'+inputCard("capital",officialEntry("P2_AMOUNT","現有資金"),state.capital)+'<p class="quiet-note">呢筆係已累積嘅本金，唔係之後每年新投入。</p></div>'
+  +'<div class="input-section"><h3>目前銀行存款</h3>'+inputCard("bankRate",officialEntry("P3_RATE","銀行年息（可留空）"),state.bankRate)+'<p class="quiet-note">利率係自行設定的銀行情境，唔代表銀行實際或保證利率。</p></div>'
+  +'</div><p class="calculation-note">'+escapeText(disclosure("BANK_SCENARIO"))+'</p>';
+case 3:
+ return titleBlock("P4",salesTitle("P4_TITLE","如果同一筆錢，有另一種安排呢？"),"同一筆投入，睇下時間可以帶嚟咩變化。")
+  +'<div class="comparison-intro"><strong>以 '+showAge(year)+' · 第 '+year+' 年探索時間</strong></div>'
+  +ageRail("compare",years,year)+cardsCompare(year)+comparisonBars(year)
+  +'<p class="quiet-note">向左右選擇年份；來源未有的年份，One-Time-Off 不顯示推算數據。</p>';
+case 4:
+ return titleBlock("P5",salesTitle("P5_TITLE","原來係咁運作"),"一次投入，與 5PAY 每年投入五年唔同；先睇清楚 One-Time-Off 安排。")
+  +'<section class="ava-card saving-phase"><h2>第一期 One-Time-Off 安排</h2><div class="phase-flow">'
+  +'<div class="phase-step"><span class="phase-step-number">1</span><div><span>一次性投入本金</span><strong>'+moneyHK(state.capital)+'</strong></div></div>'
+  +'<div class="phase-flow-arrow" aria-hidden="true">↓</div>'
+  +'<div class="phase-step"><span class="phase-step-number">2</span><div><span>由第 1 年開始安排</span><small>一次投入，非每年供款，亦非連續供款五年。</small></div></div>'
+  +'<div class="phase-flow-arrow" aria-hidden="true">↓</div>'
+  +'<div class="phase-step"><span class="phase-step-number">3</span><div><span>總投入</span><strong>'+moneyHK(state.capital)+'</strong></div></div>'
+  +'</div></section>'+planPicker()
+  +'<p class="calculation-note">One-Time-Off 使用獨立官方回報表。每年提取、開始時間與付款基準未正式驗證，不能當成保證現金流。</p>';
+case 5:
+ return titleBlock("P6",salesTitle("P6_TITLE","時間會帶到邊？"),"拉動時間，睇下唔同年份已有嘅官方結餘結果。")
+  +'<div class="anchor-metric"><span>截至呢個時間點已投入 · '+showAge(year)+' · 第'+year+'年</span><strong>'+moneyHK(state.capital)+'</strong></div>'
+  +ageRail("saving",annualYears(),year)
+  +'<div class="result-card"><span class="card-kicker">One-Time-Off 保單結餘 · '+showAge(year)+'</span><strong>'+safeOutcome(projected)+'</strong><span>'+(projected===null?"呢個時間點官方未有提供數值。":"本金 × 該年度官方結餘倍數 "+multiplierText(exact(p,year))+"×（不包含已提取金額）")+'</span></div>'
+  +'<details class="annual-details"><summary>查看已提供年份及回報倍數</summary><div class="table-wrap"><table><thead><tr><th>保單年度</th><th>結餘倍數</th><th>結餘（HK$）</th></tr></thead><tbody>'+p.balances.map(([y,m])=>'<tr><td>'+y+'</td><td>'+multiplierText(m)+'×</td><td>'+money(state.capital*m)+'</td></tr>').join('')+'</tbody></table></div></details>'
+  +'<p class="calculation-note">'+escapeText(disclosure("EXACT_YEAR"))+'</p>';
+default:
+ return titleBlock("P7",salesTitle("P7_TITLE","如果中途開始用呢？"),"先選幾時開始使用，再睇之後各個年齡會點變。")
+  +withdrawalStartRail()
+  +'<h3>開始之後，時間行落去會點？</h3>'
+  +ageRail("withdrawal",annualYears(),state.withdrawalYear,"data-withdraw-year")
+  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>—</strong></div><div><span>累積已使用</span><strong>—</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(state.withdrawalStart==='none'?projectAt(p,state.withdrawalYear):null)+'</strong><small>'+(state.withdrawalStart==='none'?'未提取情境的官方保單結餘':'領取後餘額尚未核實，不能以未提取結餘代替')+'</small></div></div>'
+  +'<p role="status" class="ava-status ava-status--warning">未有已核實的領取起始年、每年金額、累積領取及領取後結餘計算基準。以上金額暫不顯示，唔會用 5PAY 嘅提取公式代替 One-Time-Off；正式條款核實後先可以計算。</p>'
+  +'<p>你的資金目標：'+escapeText(purposeChoices.find(c=>c[0]===state.purpose)?.[1]||"未選擇")+'</p>'
+  +'<p data-edit-paragraph="2">'+escapeText(officialContent.entries.find(e=>e[0]==="P7_NOTE")?.[3]||"可同客人討論使用時間、流動需要及產品限制。")+'</p>'
+  +'<p class="note">'+escapeText(disclosure("SUMMARY_NOTE"))+'</p>';
 }
 }
 
@@ -103,7 +151,7 @@ function body(){
  return html;
 }
 function validateCurrent(){
-  return [$("#capital"),$("#bankRate"),$("#bankYears")].every(field=>!field || field.reportValidity());
+  return [$("#currentAge"),$("#capital"),$("#bankRate"),$("#bankYears")].every(field=>!field || field.reportValidity());
 }
 function bindNumber(field,key,min,max,places){
   const update=()=>{
@@ -162,9 +210,12 @@ $("#app").innerHTML=renderedBody+userNote()+(entry==="user"?'<div class="user-ac
 function go(key){if(!validateCurrent())return;if(/^u-/.test(key)){customPageId=key}else{customPageId=null;state.step=Number(key)}render()}
 
 document.querySelectorAll("[data-method]").forEach(b=>b.onclick=()=>{state.method=b.dataset.method;go("1")});
+document.querySelectorAll("[data-purpose]").forEach(b=>b.onclick=()=>{state.purpose=b.dataset.purpose;go("2")});
 document.querySelectorAll("[data-bank-year]").forEach(b=>b.onclick=()=>{state.bankYears=Number(b.dataset.bankYear);state.term=state.bankYears;render();document.querySelector('[data-bank-year="'+state.bankYears+'"]')?.focus()});
 document.querySelectorAll("[data-goal]").forEach(b=>b.onclick=()=>{const i=+b.dataset.goal;state.goals=state.goals.includes(i)?state.goals.filter(x=>x!==i):[...state.goals,i];b.setAttribute("aria-pressed",state.goals.includes(i))});
 document.querySelectorAll("[data-year]").forEach(b=>b.onclick=()=>{state.term=Number(b.dataset.year);state.bankYears=state.term;render();document.querySelector(`[data-year="${state.term}"]`)?.focus()});
+document.querySelectorAll("[data-withdraw-start]").forEach(b=>b.onclick=()=>{state.withdrawalStart=b.dataset.withdrawStart;const earliest=Number(state.withdrawalStart);if(Number.isFinite(earliest)&&state.withdrawalYear<earliest){state.withdrawalYear=annualYears().find(y=>y>=earliest)??state.withdrawalYear}render();document.querySelector(`[data-withdraw-start="${state.withdrawalStart}"]`)?.focus()});
+document.querySelectorAll("[data-withdraw-year]").forEach(b=>b.onclick=()=>{state.withdrawalYear=Number(b.dataset.withdrawYear);render();document.querySelector(`[data-withdraw-year="${state.withdrawalYear}"]`)?.focus()});
 document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.choice;render()});
 $("#back").onclick=()=>{if(at>0)go(flow[at-1].key)};$("#next").onclick=()=>{if(at<flow.length-1)go(flow[at+1].key)};
 async function saveUserDraft(){if(userSaving)return;userSaving=true;const snapshot=cloneUser(userDraft);try{await writeUserData(snapshot);userSaved=snapshot;userDirty=userChanged();userError=userDirty?"已儲存較早版本，較新的修改仍未儲存。":"已儲存並核對本機資料。"}catch(e){userError="儲存失敗，草稿仍保留；請重試。"}finally{userSaving=false}render()}
@@ -184,6 +235,7 @@ if(entry==="user"){
 const savePreview=$("#save-preview");if(savePreview)savePreview.onclick=saveUserDraft;
 const exitPreview=$("#exit-preview");if(exitPreview)exitPreview.onclick=()=>{previewUser=false;render()};
 const cap=$("#capital");if(cap)bindNumber(cap,"capital",1,1000000000000,2);
+const age=$("#currentAge");if(age)age.addEventListener("input",()=>{const raw=age.value.trim();const valid=/^\d{1,3}$/.test(raw)&&Number(raw)>=0&&Number(raw)<=120;age.setCustomValidity(valid?"":"請輸入 0 至 120 歲的整數。");age.setAttribute("aria-invalid",String(!valid));if(valid)state.currentAge=Number(raw);});
 const rate=$("#bankRate");if(rate)bindNumber(rate,"bankRate",0,100,4);
 const bankYears=$("#bankYears");if(bankYears)bindNumber(bankYears,"bankYears",1,100,0);
 const arrangement=$("#arrangement");if(arrangement)arrangement.onchange=()=>{state.plan=arrangement.value;render()};

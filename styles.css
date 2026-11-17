@@ -95,3 +95,54 @@ body.ava-front { background:var(--ava-color-background); color:var(--ava-color-t
  .ava-front .flow-card-top { margin-bottom:var(--ava-space-12); }
  .ava-front .actions.ava-front__actions #next { min-width:var(--ava-touch-target); }
 }
+
+
+/* Independent AVA App layout: full-bleed header, centered sales card, Back outside card. */
+body.ava-front > header.ava-front__header {
+  position:relative;
+  top:auto;
+  box-sizing:border-box;
+  width:100%;
+  min-height:var(--ava-nav-height);
+  margin:0;
+  padding:var(--ava-space-16) max(20px,env(safe-area-inset-right)) var(--ava-space-16) max(20px,env(safe-area-inset-left));
+  border:0;
+  border-bottom:var(--ava-border-width) solid var(--ava-color-border);
+  border-radius:0;
+  background:var(--ava-color-surface);
+  box-shadow:none;
+}
+body.ava-front .shell.ava-front__container {
+  width:100%;
+  max-width:1280px;
+  margin:0 auto;
+  padding-top:var(--ava-space-24);
+  padding-bottom:max(var(--ava-space-24),env(safe-area-inset-bottom));
+}
+body.ava-front .flow-backbar {
+  display:flex;
+  justify-content:flex-start;
+  align-items:center;
+  margin:0 0 var(--ava-space-16);
+}
+body.ava-front .flow-back {
+  flex:0 0 auto;
+  min-height:var(--ava-touch-target);
+}
+body.ava-front .app-mode-label:empty { display:none; }
+body.ava-front .panel.ava-front__content { width:100%; min-width:0; }
+@media(min-width:700px) {
+ body.ava-front > header.ava-front__header {
+   padding-left:max(36px,env(safe-area-inset-left));
+   padding-right:max(36px,env(safe-area-inset-right));
+ }
+}
+@media(max-width:650px) {
+ body.ava-front > header.ava-front__header { padding:var(--ava-space-12) max(16px,env(safe-area-inset-right)) var(--ava-space-12) max(16px,env(safe-area-inset-left)); }
+ body.ava-front .shell.ava-front__container { padding-top:var(--ava-space-16); }
+ body.ava-front .flow-backbar { margin-bottom:var(--ava-space-12); }
+}
+@media print {
+ body.ava-front .flow-backbar { display:none; }
+ body.ava-front > header.ava-front__header { border-bottom:0; }
+}

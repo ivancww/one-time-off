@@ -40,6 +40,8 @@ jobs:
           node tests/test_pages_build.mjs
           node tests/test_staging_build.mjs
           node tests/test_staging_gateway.mjs
+      - name: Verify App release identity
+        run: node tools/check-release-governance.mjs
       - name: Build approved commit
         env:
           APP_SOURCE_SHA: ${{ github.sha }}

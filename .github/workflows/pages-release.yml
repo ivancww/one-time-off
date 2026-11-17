@@ -1,5 +1,7 @@
-name: Owner-approved One-Time-Off Pages release
+name: Deploy One-Time-Off to GitHub Pages
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       approved_sha:
@@ -18,7 +20,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
-    if: github.repository == 'ivancww/one-time-off' && github.ref == 'refs/heads/main' && github.actor == github.repository_owner && inputs.approve_publish && inputs.approved_sha == github.sha
+    if: github.repository == 'ivancww/one-time-off' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner && inputs.approve_publish && inputs.approved_sha == github.sha))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +29,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Revalidate released commit (read-only local contract tests)
+        run: |
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
+          node tests/test_sheets_readonly.mjs
+          node tests/test_gas_contract.mjs
+          node tests/test_gas_actions.mjs
+          node tests/test_gas_integration.mjs
+          node tests/test_gas_owner_examples.mjs
+          node tests/test_pages_build.mjs
+          node tests/test_staging_build.mjs
+          node tests/test_staging_gateway.mjs
       - name: Build approved commit
         env:
           APP_SOURCE_SHA: ${{ github.sha }}
@@ -50,6 +63,6 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: false
-      - name: Publish explicitly approved artifact
+      - name: Publish tested main artifact
         id: deployment
         uses: actions/deploy-pages@v4

@@ -21,8 +21,8 @@ const check = `
       if (body().includes(p.label)) throw Error('unverified start year shown');
     }
   }
-  state.step = 4; state.plan = 'year1'; state.term = 6;
-  if (!body().includes('無此年度數據')) throw Error('unsupported year invented');
+  state.step = 5; state.plan = 'year1'; state.term = 6;
+  if (!body().includes('呢個時間點官方未有提供數值')) throw Error('unsupported year invented');
 `;
 vm.runInNewContext(source + check, {bundledData:data, document: {}, window: {}});
 '''

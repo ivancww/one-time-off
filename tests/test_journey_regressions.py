@@ -34,7 +34,7 @@ vm.runInNewContext(source + `
   if (!body().includes('收息／現金流')) throw Error('purpose missing from withdrawal view');
   if (!body().includes('累積已使用') || !body().includes('當時戶口價值')) throw Error('withdrawal result roles missing');
   if (!body().includes('唔會用 5PAY')) throw Error('unsupported withdrawal calculations must be clearly denied');
-  state.step=3;state.term=15;state.currentAge=40;const comparison=body();if(!comparison.includes('55歲')||!comparison.includes('500,000'))throw Error('age-led same-principal comparison broken');
+  state.step=3;state.term=15;state.currentAge=40;const ageCompare=body();if(!ageCompare.includes('55歲')||!ageCompare.includes('500,000'))throw Error('age-led same-principal comparison broken');
   state.step=0;if((body().match(/data-method=/g)||[]).length!==4)throw Error('P1 must have four choices');
   state.step=1;if((body().match(/data-purpose=/g)||[]).length!==4)throw Error('P2 must have four choices');
 `, {bundledData:data, document: {}, window: {}, URLSearchParams});

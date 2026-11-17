@@ -18,7 +18,7 @@ export function validRelease(m){
  && Array.isArray(m.history) && m.history.length<=30 && m.history.every(h=>h&&typeof h.version==="string"&&compareReleaseVersions(h.version,"0.0.0")!==null&&typeof h.title==="string"&&Array.isArray(h.changes));
 }
 const $=id=>document.getElementById(id);
-let remote=null,checking=false,firstRead=true,activeModal=null;
+let remote=null,checking=false,activeModal=null;
 const hasUnsavedChanges=()=>typeof window.__avaHasUnsavedDraft==="function"&&window.__avaHasUnsavedDraft();
 function ensureDialog(){
  let d=$("ava-release-dialog");if(d)return d;
@@ -54,12 +54,15 @@ function updateBlocked(m,message=""){
  if(comparison!==1)return;
  const changes=m.changes;
  const summary=message||("目前使用 v"+CURRENT_VERSION+"，已有新版本 v"+m.version+"。需要更新後先繼續使用。");
- dialogContent({title:"必須更新",summary,changes,lock:true,action:()=>performUpdate(m),actionLabel:"立即更新"});
+ dialogContent({title:"必須更新",summary,changes,lock:true,action:()=>performUpdate(m),actionLabel:hasUnsavedChanges()?"儲存草稿並更新":"立即更新"});
 }
 async function performUpdate(m){
- if(hasUnsavedChanges()){updateBlocked(m,"你有未儲存的 User Edit 修改。請先儲存或取消草稿，再按「立即更新」，以免遺失資料。");return}
- const last=safeStore.get(attemptKey);
- if(last===m.releaseId){updateBlocked(m,"已嘗試載入新版但仍未成功。請檢查網絡，稍後再按「立即更新」。");return}
+ if(hasUnsavedChanges()){
+  const save=window.__avaSaveUserDraft;
+  if(typeof save!=="function"){updateBlocked(m,"有未儲存的內容，請先保存草稿。");return}
+  const saved=await save();
+  if(!saved){updateBlocked(m,"儲存草稿未成功，未有重新載入。請檢查資料儲存後再試。");return}
+ }
  safeStore.set(attemptKey,m.releaseId);
  try{
   if("serviceWorker" in navigator){const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.update()}
@@ -79,7 +82,7 @@ async function checkRelease(){
   if(!observed||compareReleaseVersions(observed,CURRENT_VERSION)===null){safeStore.set(observedKey,CURRENT_VERSION);return}
   if(compareReleaseVersions(CURRENT_VERSION,observed)===1&&!activeModal)displayNotice(m,observed);
   if(safeStore.get(attemptKey)===m.releaseId)safeStore.set(attemptKey,"");
- }catch{}finally{checking=false;firstRead=false}
+ }catch{}finally{checking=false}
 }
 if(typeof window!=="undefined"&&typeof document!=="undefined"){
  document.addEventListener("DOMContentLoaded",()=>{

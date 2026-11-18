@@ -38,6 +38,7 @@ jobs:
           node tests/test_gas_integration.mjs
           node tests/test_gas_owner_examples.mjs
           node tests/test_admin_readiness.mjs
+          node tests/test_admin_gas_addon.cjs
           node tests/test_pages_build.mjs
           node tests/test_staging_build.mjs
           node tests/test_staging_gateway.mjs

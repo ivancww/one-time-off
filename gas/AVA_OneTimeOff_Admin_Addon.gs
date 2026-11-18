@@ -80,7 +80,7 @@ function otoAdminSaveText_(body) {
   otoAdminAuthorize_(body,'official-write');
   if (PropertiesService.getScriptProperties().getProperty('OTO_ADMIN_WRITES_ENABLED')!=='true') throw new Error('Official writes not enabled');
   var table=String(body.table||''),recordId=String(body.recordId||''),value=body.text,expected=String(body.expectedRevision||'');
-  if (!/^[A-Za-z0-9_]{2,100}$/.test(recordId) || typeof value!=='string' || !value.trim() || value.length>2000 || /^\\s*[=+@]/.test(value) || !/^[a-f0-9]{64}$/.test(expected))
+  if (!/^[A-Za-z0-9_]{2,100}$/.test(recordId) || typeof value!=='string' || !value.trim() || value.length>2000 || /^\s*[=+@]/.test(value) || !/^[a-f0-9]{64}$/.test(expected))
     throw new Error('Invalid Official update');
   var lock=LockService.getScriptLock();lock.waitLock(10000);
   try {

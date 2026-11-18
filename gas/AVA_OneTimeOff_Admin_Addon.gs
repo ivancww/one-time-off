@@ -91,12 +91,19 @@ function otoAdminSaveText_(body) {
     var grid=d.sheet.getDataRange().getDisplayValues(),rowIndex=-1;
     for(var i=1;i<grid.length;i++){if(grid[i][0]===recordId){if(rowIndex!==-1)throw new Error('Duplicated Official ID');rowIndex=i+1;}}
     if (rowIndex===-1) throw new Error('Official record not found');
-    d.sheet.getRange(rowIndex,d.spec.fieldIndex+1).setValue(value);
-    SpreadsheetApp.flush();
-    var after=otoAdminSheet_(table),saved=after.rows.filter(function(row){return row[0]===recordId;});
-    if (saved.length!==1 || saved[0][d.spec.fieldIndex]!==value) throw new Error('Official read-back mismatch');
-    return {success:true,appId:OTO_ADMIN_APP_ID_,table:table,recordId:recordId,
-      text:saved[0][d.spec.fieldIndex],revision:otoAdminHash_(after.rows),persisted:true};
+    var oldValue=grid[rowIndex-1][d.spec.fieldIndex];
+    try {
+      d.sheet.getRange(rowIndex,d.spec.fieldIndex+1).setValue(value);
+      SpreadsheetApp.flush();
+      var after=otoAdminSheet_(table),saved=after.rows.filter(function(row){return row[0]===recordId;});
+      if (saved.length!==1 || saved[0][d.spec.fieldIndex]!==value) throw new Error('Official read-back mismatch');
+      return {success:true,appId:OTO_ADMIN_APP_ID_,table:table,recordId:recordId,
+        text:saved[0][d.spec.fieldIndex],revision:otoAdminHash_(after.rows),persisted:true};
+    } catch (error) {
+      // Best-effort rollback. Deployment must independently verify the actual Sheet state after failure.
+      try { d.sheet.getRange(rowIndex,d.spec.fieldIndex+1).setValue(oldValue); SpreadsheetApp.flush(); } catch (_) {}
+      throw error;
+    }
   }finally{lock.releaseLock();}
 }
 // Existing doPost(e) integration, preserving ALL current actions:

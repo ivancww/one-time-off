@@ -7,7 +7,7 @@ const fixture=()=>({valueRanges:[...snapshot.plans.map(p=>({range:`'${p.sheet}'!
 let calls=0;const token=async()=> 'private-token';
 const fetcher=async(url,options)=>{calls++;const u=new URL(url);assert.equal(u.hostname,'sheets.googleapis.com');assert.equal(u.searchParams.getAll('ranges').length,8);assert.equal(options.method,'GET');assert.equal(options.headers.Authorization,'Bearer private-token');return {ok:true,json:async()=>fixture()}};
 const options={getAccessToken:token,fetcher,now:()=>new Date('2026-11-10T00:00:00Z')};
-const first=await readOfficialSheets(options),again=await readOfficialSheets(options);assert.equal(first.revision,again.revision);assert.equal(first.data.plans.flatMap(p=>p.balances).length,168);assert.equal(first.publishedAt,'2026-11-10T00:00:00.000Z');
+const first=await readOfficialSheets(options),again=await readOfficialSheets(options);assert.equal(first.revision,again.revision);assert.equal(first.data.plans.flatMap(p=>p.balances).length,172);assert.equal(first.publishedAt,'2026-11-10T00:00:00.000Z');
 for(const mutate of [p=>p.valueRanges[0].values[0][2]='wrong',p=>p.valueRanges[0].values[1][1]=.05,p=>p.valueRanges[0].values[2][0]=5,p=>p.valueRanges[0].values[1][2]=-1,p=>p.valueRanges[0].values[3]=[],p=>p.valueRanges[0].range="'3year 5%'!A1:C1000",p=>p.valueRanges.pop()]){
  const p=structuredClone(fixture());mutate(p);await assert.rejects(()=>readOfficialSheets({...options,fetcher:async()=>({ok:true,json:async()=>p})}));
 }

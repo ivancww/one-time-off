@@ -128,7 +128,7 @@ default:
  return titleBlock("P7",salesTitle("P7_TITLE","如果中途開始用呢？"),"選擇安排，再探索不同年齡的效果。")
   +withdrawalStartRail()
   +'<h3>探索年齡及保單年度</h3>'
-  +(state.currentAge===null?'<p class="withdrawal-age-prompt">尚未輸入目前歲數；以下先按保單年度顯示。可返回第 3 頁輸入歲數，便會顯示實際年齡。</p>':"")
+  +(state.currentAge===null?'<div class="withdrawal-age-prompt"><p>請輸入目前歲數，以查看對應年齡；未填時先顯示保單年度。</p>'+inputCard("currentAge","目前歲數",state.currentAge)+'</div>':"")
   +ageRail("withdrawal",annualYears(),state.withdrawalYear,"data-withdraw-year")
   +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'待核實')+'</strong></div><div><span>累積已使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'待核實')+'</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(projectAt(p,state.withdrawalYear))+'</strong></div></div>'
   +(state.plan==='rollover'?'':'<p class="withdrawal-source-note">戶口價值按所選安排的官方來源結餘倍數計算；每年及累積提取金額仍需核實實際提取基數及產品條款，未有數據前不會估算。</p>')
@@ -230,7 +230,7 @@ if(entry==="user"){
 const savePreview=$("#save-preview");if(savePreview)savePreview.onclick=saveUserDraft;
 const exitPreview=$("#exit-preview");if(exitPreview)exitPreview.onclick=()=>{previewUser=false;render()};
 const cap=$("#capital");if(cap)bindNumber(cap,"capital",1,1000000000000,2);
-const age=$("#currentAge");if(age)age.addEventListener("input",()=>{const raw=age.value.trim();const valid=/^\d{1,3}$/.test(raw)&&Number(raw)>=0&&Number(raw)<=120;age.setCustomValidity(valid?"":"請輸入 0 至 120 歲的整數。");age.setAttribute("aria-invalid",String(!valid));if(valid)state.currentAge=Number(raw);});
+const age=$("#currentAge");if(age)age.addEventListener("input",()=>{const raw=age.value.trim();const valid=/^\d{1,3}$/.test(raw)&&Number(raw)>=0&&Number(raw)<=120;age.setCustomValidity(valid?"":"請輸入 0 至 120 歲的整數。");age.setAttribute("aria-invalid",String(!valid));if(valid)state.currentAge=Number(raw);});if(age && state.step===6)age.addEventListener("change",()=>{if(age.value.trim() && age.checkValidity())render()});
 const rate=$("#bankRate");if(rate)bindNumber(rate,"bankRate",0,100,4);
 const bankYears=$("#bankYears");if(bankYears)bindNumber(bankYears,"bankYears",1,100,0);
 const arrangement=$("#arrangement");if(arrangement)arrangement.onchange=()=>{state.plan=arrangement.value;render()};

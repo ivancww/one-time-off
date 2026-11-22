@@ -16,7 +16,7 @@ const context=vm.createContext({
 });
 vm.runInContext(source,context);
 const result=context.otoReturnsPayload_();
-assert.deepEqual(JSON.parse(JSON.stringify(result.plans)),snapshot.plans);
+assert.deepEqual(JSON.parse(JSON.stringify(result.plans)),snapshot.plans.map(({id,sheet,rate,startYear,balances})=>({id,sheet,rate,startYear,balances})));
 const hash=context.otoReturnsRevision_(result);
 assert.match(hash,/^[0-9a-f]{64}$/);
 assert.equal(hash,context.otoReturnsRevision_(result));

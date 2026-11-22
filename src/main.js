@@ -36,13 +36,13 @@ const money=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:2});
 const decimal=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:6});
 const multiplierText=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:15});
 // A tab name is a source identifier, not confirmation of withdrawal timing.
-const planLabel=p=>p.id==="rollover"?"自動滾存（不提取）":"提取安排（來源分頁："+p.sheet+"）";
+const planLabel=p=>p.id==="rollover"?"自動滾存（不提取）":"第"+p.startYear+"年開始每年提取本金"+decimal(p.rate*100)+"%";
 const plan=id=>data.plans.find(p=>p.id===id);
 const exact=(p,year)=>p.balances.find(r=>r[0]===year)?.[1]??null;
 function validateSnapshot(snapshot){
- const expected=[["year1","1year 4%"],["year3","3year 5%"],["year5","5year 6%"],["rollover","自動滾存"]];
+ const expected=[["year5","5year 6%",0.06,5],["year7","7year 6.5%",0.065,7],["year9","9year 7%",0.07,9],["year11","11year 8%",0.08,11],["rollover","自動滾存",0,null]];
  if(!snapshot || snapshot.dataMode!=="verified-manual-snapshot" || !Array.isArray(snapshot.plans) || snapshot.plans.length!==expected.length)return false;
- return expected.every(([id,sheet],i)=>{const p=snapshot.plans[i];if(!p || p.id!==id || p.sheet!==sheet || !Number.isFinite(p.rate) || p.rate<0 || p.rate>1 || !Array.isArray(p.balances) || !p.balances.length)return false;let previous=0;return p.balances.every(row=>{if(!Array.isArray(row) || row.length!==2 || !Number.isSafeInteger(row[0]) || row[0]<=previous || !Number.isFinite(row[1]) || row[1]<=0)return false;previous=row[0];return true})});
+ return expected.every(([id,sheet,rate,startYear],i)=>{const p=snapshot.plans[i];if(!p || p.id!==id || p.sheet!==sheet || p.rate!==rate || p.startYear!==startYear || !Array.isArray(p.balances) || !p.balances.length)return false;let previous=0;return p.balances.every(row=>{if(!Array.isArray(row) || row.length!==2 || !Number.isSafeInteger(row[0]) || row[0]<=previous || !Number.isFinite(row[1]) || row[1]<=0)return false;previous=row[0];return true})});
 }
 let snapshotValid=validateSnapshot(data);
 let years=snapshotValid?[...new Set(data.plans.flatMap(p=>p.balances.map(r=>r[0])))].sort((a,b)=>a-b):[];
@@ -83,16 +83,18 @@ const comparison=(year)=>{const bank=bankForYear(year),saving=projectAt(plan(sta
 const titleBlock=(code,title,subtitle)=>'<div class="flow-context"><div class="eyebrow">'+code+' · 對話進行中</div><h1>'+title+'</h1><p>'+subtitle+'</p></div>';
 const optionCards=(items,field,icon)=>'<div class="conversation-grid">'+items.map(([id,name,desc])=>'<button type="button" class="ava-card ava-card--interactive" data-'+field+'="'+id+'" aria-pressed="'+(state[field]===id)+'"><span class="card-icon" aria-hidden="true">'+icon+'</span><span><strong>'+escapeText(name)+'</strong><small>'+escapeText(desc)+'</small></span></button>').join('')+'</div>';
 const ageRail=(key,items,selected,attribute="data-year")=>'<div class="time-bar-card timeline-rail-card"><div class="time-bar-heading"><span>向左右探索'+(key==="start"?"開始使用年齡":"年齡")+'</span><span>左右滑動查看更多</span></div><div class="timeline-rail" role="listbox" aria-label="年齡和保單年度">'+items.map(year=>'<button type="button" role="option" class="timeline-rail__item'+(Number(year)===Number(selected)?" is-selected":"")+'" '+attribute+'="'+year+'" aria-selected="'+(Number(year)===Number(selected))+'"><strong>'+showAge(year)+'</strong><small>第 '+year+' 年'+(key==="start"?"開始":"")+'</small></button>').join('')+'</div></div>';
-const arrangementOptions=[["rollover","自動滾存（不提取）"],["year1","第1年領取"],["year3","第3年領取"],["year5","第5年領取"]];
+const arrangementOptions=[["rollover","自動滾存（不提取）"],["year5","第5年起領 6%"],["year7","第7年起領 6.5%"],["year9","第9年起領 7%"],["year11","第11年起領 8%"]];
 const withdrawalStartRail=()=>'<div class="time-bar-card timeline-rail-card"><h3>選擇回報安排</h3><div class="timeline-rail" role="listbox" aria-label="選擇回報安排">'+arrangementOptions.map(([id,label])=>'<button type="button" role="option" class="timeline-rail__item'+(state.plan===id?' is-selected':'')+'" data-withdraw-start="'+id+'" aria-selected="'+(state.plan===id)+'"><strong>'+label+'</strong></button>').join('')+'</div></div>';
 const cardsCompare=(year)=>{const o=comparison(year);return '<div class="same-money"><span>同樣投入本金 · 第'+year+'年 · '+showAge(year)+'</span><strong>'+moneyHK(state.capital)+'</strong></div><div class="p4-simple-outcomes" data-comparison-year="'+year+'"><div class="p4-simple-outcome"><span>維持銀行存款 · 假設</span><strong>'+moneyHK(o.bank)+'</strong></div><div class="p4-simple-outcome p4-simple-outcome--saving"><span>One-Time-Off 結餘</span><strong>'+safeOutcome(o.saving)+'</strong></div></div>'};
 const comparisonBars=(year)=>{const o=comparison(year),den=Math.max(o.bank,o.saving||0,1);const bar=(title,value,kind)=>'<div class="p4-bar-title"><strong>'+title+'</strong><strong>'+safeOutcome(value)+'</strong></div><div class="p4-colored-bar"><span class="p4-color-'+kind+'" style="width:'+(value===null?0:Math.max(0,Math.min(100,value/den*100)))+'%"></span></div>';const signed=o.diff===null?'—':(o.diff<0?'-':'+')+'HK$'+money(Math.abs(o.diff));return '<div class="p4-visual-story"><h3>同一筆錢，不同安排</h3>'+bar("維持銀行存款",o.bank,"bank")+bar("One-Time-Off 結餘",o.saving,"saving")+'</div><div class="p4-total-difference"><span>預期未來可能的差額</span><strong>'+signed+'</strong></div>'};
 const annualYears=()=>plan(state.plan).balances.map(r=>r[0]);
+const withdrawalYears=()=>{const p=plan(state.plan),first=p.startYear??p.balances[0][0];return p.balances.map(r=>r[0]).filter(y=>y>=first)};
+const cashflowAt=(p,year)=>{if(p.id==="rollover"||year<(p.startYear??Infinity))return {annual:0,cumulative:0};const annual=state.capital*p.rate;return {annual,cumulative:annual*(year-p.startYear+1)}};
 
 // 5PAY-style customer summary is a presentation state after P7, not an
 // additional Official data page; it never changes the seven-page Sheet contract.
 function customerSummary(){
- const p=plan(state.plan),year=state.withdrawalYear,account=projectAt(p,year);
+ const p=plan(state.plan),year=state.withdrawalYear,account=projectAt(p,year),cashflow=cashflowAt(p,year);
  const method=methodChoices.find(x=>x[0]===state.method)?.[1]||"未選擇";
  const purpose=purposeChoices.find(x=>x[0]===state.purpose)?.[1]||"未選擇";
  const values=[
@@ -101,12 +103,12 @@ function customerSummary(){
   ["選擇回報安排",escapeText(arrangementOptions.find(x=>x[0]===state.plan)?.[1]||p.sheet)],
   ["探索時間",showAge(year)+" · 第 "+year+" 年"],
   ["預計保單結餘",safeOutcome(account)],
-  ["每年可使用",state.plan==="rollover"?moneyHK(0):"待核實"],
-  ["累積已使用",state.plan==="rollover"?moneyHK(0):"待核實"]
+  ["每年可使用",moneyHK(cashflow.annual)],
+  ["累積已使用",moneyHK(cashflow.cumulative)]
  ];
  return '<section class="customer-summary" data-ava-mode="presentation"><div class="flow-context"><div class="eyebrow">總結 · 客戶展示</div><h1>現有安排 ＋ 一次性儲蓄規劃</h1><p>根據今次選擇，整理投入、時間同預計保單結餘。</p></div>'
  +'<div class="customer-summary__grid">'+values.map(([label,value],i)=>'<div class="ava-card customer-summary__item'+(i===4?' customer-summary__item--accent':'')+'"><span>'+label+'</span><strong>'+value+'</strong></div>').join('')+'</div>'
- +'<p class="withdrawal-source-note">目標：'+escapeText(purpose)+'。保單結餘根據 '+escapeText(p.sheet)+' 所提供嘅第 '+year+' 年結餘倍數計算。資料為非即時官方資料快照，並非保證收益。提取金額、提取基數及累積已使用金額未有完整核實資料，不作估算。</p>'
+ +'<p class="withdrawal-source-note">目標：'+escapeText(purpose)+'。保單結餘根據 '+escapeText(p.sheet)+' 所提供嘅第 '+year+' 年結餘倍數計算。資料為非即時文件來源快照，並非保證收益。每年提取額以一次性投入本金乘對應比例計算，累積額按起領年度逐年累計；預期退保價值沿用指定年度的文件倍數，包含非保證部分。</p>'
  +'<div class="actions ava-front__actions"><button type="button" class="primary ava-button ava-button--primary" id="print-summary">列印／儲存 PDF</button><button type="button" class="secondary ava-button ava-button--secondary" id="back-to-p7">返回對話</button></div></section>';
 }
 
@@ -151,9 +153,9 @@ default:
   +withdrawalStartRail()
   +'<h3>探索年齡及保單年度</h3>'
   +(state.currentAge===null?'<div class="withdrawal-age-prompt"><p>請輸入目前歲數，以查看對應年齡；未填時先顯示保單年度。</p>'+inputCard("currentAge","目前歲數",state.currentAge)+'</div>':"")
-  +ageRail("withdrawal",annualYears(),state.withdrawalYear,"data-withdraw-year")
-  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'待核實')+'</strong></div><div><span>累積已使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'待核實')+'</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(projectAt(p,state.withdrawalYear))+'</strong></div></div>'
-  +(state.plan==='rollover'?'':'<p class="withdrawal-source-note">戶口價值按所選安排的官方來源結餘倍數計算；每年及累積提取金額仍需核實實際提取基數及產品條款，未有數據前不會估算。</p>')
+  +ageRail("withdrawal",withdrawalYears(),state.withdrawalYear,"data-withdraw-year")
+  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>'+moneyHK(cashflowAt(p,state.withdrawalYear).annual)+'</strong></div><div><span>累積已使用</span><strong>'+moneyHK(cashflowAt(p,state.withdrawalYear).cumulative)+'</strong></div><div><span>當時退保價值</span><strong>'+safeOutcome(projectAt(p,state.withdrawalYear))+'</strong></div></div>'
+  +(state.plan==='rollover'?'':'<p class="withdrawal-source-note">每年領取按一次性本金 × '+decimal(p.rate*100)+'% 計算，從第 '+p.startYear+' 保單年度開始累計；退保價值依據該方案的文件來源結餘倍數，屬預期非保證金額。</p>')
   +'<p data-edit-paragraph="2"></p>';
 
 }
@@ -240,7 +242,7 @@ document.querySelectorAll("[data-purpose]").forEach(b=>b.onclick=()=>{state.purp
 document.querySelectorAll("[data-bank-year]").forEach(b=>b.onclick=()=>{state.bankYears=Number(b.dataset.bankYear);state.term=state.bankYears;render();document.querySelector('[data-bank-year="'+state.bankYears+'"]')?.focus()});
 document.querySelectorAll("[data-goal]").forEach(b=>b.onclick=()=>{const i=+b.dataset.goal;state.goals=state.goals.includes(i)?state.goals.filter(x=>x!==i):[...state.goals,i];b.setAttribute("aria-pressed",state.goals.includes(i))});
 document.querySelectorAll("[data-year]").forEach(b=>b.onclick=()=>{state.term=Number(b.dataset.year);state.bankYears=state.term;render();document.querySelector(`[data-year="${state.term}"]`)?.focus()});
-document.querySelectorAll("[data-withdraw-start]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.withdrawStart;render();document.querySelector(`[data-withdraw-start="${state.plan}"]`)?.focus()});
+document.querySelectorAll("[data-withdraw-start]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.withdrawStart;state.withdrawalYear=withdrawalYears()[0];render();document.querySelector(`[data-withdraw-start="${state.plan}"]`)?.focus()});
 document.querySelectorAll("[data-withdraw-year]").forEach(b=>b.onclick=()=>{state.withdrawalYear=Number(b.dataset.withdrawYear);render();document.querySelector(`[data-withdraw-year="${state.withdrawalYear}"]`)?.focus()});
 document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.choice;render()});
 $("#back").onclick=()=>{if(at>0)go(flow[at-1].key)};$("#next").onclick=()=>{if(at<flow.length-1)go(flow[at+1].key);else if(validateCurrent()){showSummary=true;render()}};

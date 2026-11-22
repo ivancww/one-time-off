@@ -28,7 +28,7 @@ export async function readOfficialSheets({getAccessToken,fetcher=globalThis.fetc
   const tab=range?.range?.match(/^'((?:[^']|'')+)'!|^([^!]+)!/);
   if(!tab || (tab[1]?.replace(/''/g,"'")||tab[2])!==sheet || !Array.isArray(rows) || rows.length<2 || rows.length>5000 || rows[0].length!==3 || !header.every((h,j)=>rows[0][j]===h))throw Error('Invalid Sheet schema');
   const balances=rows.slice(1).map(row=>{
-   if(!Array.isArray(row)||row.length!==3||row[1]!==rate)throw Error('Invalid Sheet row');
+   if(!Array.isArray(row)||row.length!==3||row[1]!==((startYear!==null&&row[0]<startYear)?0:rate))throw Error('Invalid Sheet row');
    return [row[0],row[2]];
   });
   return {id,sheet,rate,startYear,balances};

@@ -18,7 +18,7 @@ export function mapFinancial(data){
   return {id:p.id,sheet:p.sheet,rate:p.rate,startYear:p.startYear,balances:p.balances.map(row=>{if(!Array.isArray(row)||row.length!==2)return null;return [row[0],row[1]]})};
  });
  const mapped={sourceSpreadsheetId:source,plans};
- if(!validDataset(mapped)||plans.reduce((n,p)=>n+p.balances.length,0)!==168)throw Error('Invalid financial rows');
+ if(!validDataset(mapped)||plans.reduce((n,p)=>n+p.balances.length,0)!==172)throw Error('Invalid financial rows');
  return mapped;
 }
 export function mapContent(data){

@@ -7,7 +7,7 @@ const data=()=>({bootstrap:{mockBootstrap:{sourceSpreadsheetId:snapshot.sourceSp
 const parsers=Object.fromEntries(['bootstrap','version','content','financial'].map(name=>[name,raw=>{const value=raw?.['mock'+name[0].toUpperCase()+name.slice(1)];if(!value)throw Error('unrecognized');return value}]));
 let fixture=data(),calls=[];const getAction=async name=>{calls.push(name);return fixture[name]};
 const create=()=>createGasContractReader({getAction,parsers,now:()=>new Date('2026-11-16T00:00:00Z')});
-const result=await create()();assert.equal(result.revision,'r1');assert.deepEqual(calls.sort(),['bootstrap','content','financial','version','version']);assert.equal(result.data.plans.flatMap(p=>p.balances).length,168);assert.equal(result.data.content.entries.length,23);
+const result=await create()();assert.equal(result.revision,'r1');assert.deepEqual(calls.sort(),['bootstrap','content','financial','version','version']);assert.equal(result.data.plans.flatMap(p=>p.balances).length,172);assert.equal(result.data.content.entries.length,23);
 for(const mutate of [v=>v.bootstrap.mockBootstrap.pageIds[0]='P0',v=>v.version.mockVersion.revision='',v=>v.content.mockContent.entries.pop(),v=>v.content.mockContent.disclosures.pop(),v=>v.financial.mockFinancial.plans[0].balances.pop(),v=>v.financial.mockFinancial.plans[0].rate=.3,v=>v.financial.mockFinancial.sourceSpreadsheetId='other']){fixture=data();mutate(fixture);await assert.rejects(create())}
 fixture=data();let versionReads=0;await assert.rejects(createGasContractReader({parsers,getAction:async name=>name==='version'&&++versionReads===2?{mockVersion:{revision:'r2'}}:fixture[name]})());
 assert.throws(()=>createGasContractReader({getAction}));assert.throws(()=>gasOfficialReadHandler({read:create()}));

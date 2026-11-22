@@ -19,7 +19,7 @@ class OfficialContractTest(unittest.TestCase):
         for p in DATA["plans"][:4]:
             self.assertEqual([y for y,_ in p["balances"]],expected)
             self.assertTrue(all(m>0 for _,m in p["balances"]))
-        self.assertEqual(len(DATA["plans"][-1]["balances"]),24)
+        self.assertEqual(len(DATA["plans"][-1]["balances"]),28)
         for p in DATA["plans"]:
             years=[y for y,_ in p["balances"]]
             self.assertEqual(years,sorted(set(years)))

@@ -32,7 +32,9 @@ vm.runInNewContext(source + `
   state.term = 6; if (!body().includes('—')) throw Error('missing year must stay unavailable');
   state.purpose = 'income'; state.bankRate = 1.5; state.bankYears = 10; state.step = 6;
   if (!body().includes('累積已使用') || !body().includes('當時戶口價值')) throw Error('withdrawal result roles missing');
-  if (body().split('<strong>—</strong>').length-1!==3) throw Error('unverified withdrawal outcomes must stay unavailable');
+  const payout=body();if ((payout.match(/<strong>待核實<\\/strong>/g)||[]).length!==2) throw Error('unverified annual and cumulative payouts must remain unestimated');
+  if (!payout.includes('540,545')) throw Error('known P7 year-15 source balance must be displayed');
+  if (!payout.includes('請輸入目前歲數') || !payout.includes('第 15 年')) throw Error('missing current age must offer a P7 input without fake age');
   state.step=3;state.term=15;state.currentAge=40;const ageCompare=body();if(!ageCompare.includes('55歲')||!ageCompare.includes('500,000'))throw Error('age-led same-principal comparison broken');
   state.step=0;if((body().match(/data-method=/g)||[]).length!==4)throw Error('P1 must have four choices');
   state.step=1;if((body().match(/data-purpose=/g)||[]).length!==4)throw Error('P2 must have four choices');

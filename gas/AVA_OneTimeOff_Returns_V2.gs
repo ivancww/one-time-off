@@ -35,7 +35,7 @@ function otoReturnsPayload_(){
   var balances=rows.map(function(row,i){
     var year=row[0],rate=row[1],multiple=row[2];
     if(typeof year!=='number'||year!==expectedYears[i]||year<=last ||
-       typeof rate!=='number'||Math.abs(rate-meta.rate)>0.00000001||
+       typeof rate!=='number'||Math.abs(rate-((meta.startYear!==null&&year<meta.startYear)?0:meta.rate))>0.00000001||
        typeof multiple!=='number'||!isFinite(multiple)||multiple<=0)
       throw new Error('Official returns data invalid');
     last=year;

@@ -271,3 +271,12 @@ body.ava-front .panel.ava-front__content { width:100%; min-width:0; }
 .ava-release-dialog .release-actions button{min-height:var(--ava-touch-target);border:1px solid var(--ava-color-border);border-radius:var(--ava-control-radius);padding:10px 16px;cursor:pointer}
 .ava-release-dialog .release-actions .release-primary{background:var(--ava-color-primary);border-color:var(--ava-color-primary);color:var(--ava-color-on-primary)}
 @media(max-width:500px){.ava-front .release-history-button{font-size:13px;padding:6px 9px}.ava-release-dialog{padding:18px}.ava-release-dialog .release-actions{flex-direction:column}.ava-release-dialog .release-actions button{width:100%}}
+
+/* P7 -> Customer Summary: 5PAY-style presentation while keeping App-owned UI. */
+.ava-front .customer-summary__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ava-space-4,16px);margin-block:var(--ava-space-4,16px)}
+.ava-front .customer-summary__item{display:flex;flex-direction:column;gap:12px;min-width:0;padding:20px}
+.ava-front .customer-summary__item span{color:var(--ava-color-text-muted,var(--ava-color-text));font-size:0.95rem}
+.ava-front .customer-summary__item strong{font-size:clamp(1.1rem,2.5vw,1.7rem);overflow-wrap:anywhere}
+.ava-front .customer-summary__item--accent{border-color:var(--ava-color-primary)}
+@media(max-width:640px){.ava-front .customer-summary__grid{grid-template-columns:1fr}}
+@media print{.ava-front__header,.flow-progress,.flow-backbar,.customer-summary .actions,.technical-status{display:none!important}.customer-summary__grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}

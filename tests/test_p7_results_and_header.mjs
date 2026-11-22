@@ -20,7 +20,7 @@ assert.match(source, /每年可使用.*cashflowAt\(p,state\.withdrawalYear\)\.an
 assert.match(source, /累積已使用.*cashflowAt\(p,state\.withdrawalYear\)\.cumulative/, 'Cumulative cashflow must be derived from start year');
 assert.match(source, /按一次性本金/, 'Withdrawal base must be a one-time principal');
 assert.match(source, /withdrawalYears\(\)\[0\]/, 'Changing strategy must select its first eligible withdrawal year');
-assert.match(source, /年開始累計/, 'Show first cashflow year and cumulative basis');
+assert.match(source, /年度開始累計/, 'Show first cashflow year and cumulative basis');
 
 assert.match(source, /customerSummary\(\)/, 'A 5PAY-style customer summary is available after P7');
 assert.match(source, /showSummary=true;render\(\)/, 'P7 Next must open summary instead of exiting');

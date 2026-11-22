@@ -20,9 +20,13 @@ assert.match(source, /每年可使用.*待核實/, 'Unknown annual payout must n
 assert.match(source, /累積已使用.*待核實/, 'Unknown accumulated payout must not be invented');
 assert.match(source, /實際提取基數及產品條款/, 'Explain why cash withdrawals are not calculated');
 
-assert.match(source, /完成 · 返回 AVA/, 'Final P7 action must be a clearly labeled completion');
+assert.match(source, /customerSummary\(\)/, 'A 5PAY-style customer summary is available after P7');
+assert.match(source, /showSummary=true;render\(\)/, 'P7 Next must open summary instead of exiting');
+assert.match(source, /id="back-to-p7"/, 'Summary must return to P7');
+assert.match(source, /id="print-summary"/, 'Summary must offer a customer print/PDF action');
+assert.match(source, /現有安排 ＋ 一次性儲蓄規劃/, 'Summary shows current arrangement and saving together');
 assert.doesNotMatch(source, /at===flow\.length-1\?"disabled":""/, 'Final step must not render a disabled Next button');
-assert.match(source, /else if\(validateCurrent\(\)\)returnLink\?\.click\(\)/, 'Last-step completion must use existing Return to AVA destination');
+assert.doesNotMatch(source, /else if\(validateCurrent\(\)\)returnLink\?\.click\(\)/, 'P7 must not exit to AVA before summary');
 assert.match(source, /at<flow\.length-1\)go\(flow\[at\+1\]\.key\)/, 'Previous steps must retain Next navigation');
 
 for (const p of data.plans){assert(p.balances.length>0);assert(p.balances.every(x=>Number.isFinite(x[1])&&x[1]>0))}

@@ -150,21 +150,21 @@
       "salesFlow": [
         {
           "pageId": "P1",
-          "order": "1",
+          "order": 1,
           "title": "累積財富的安排",
           "visible": true,
           "description": "了解客人一般如何處理累積財富，四選一：銀行／現金、定期／債券、股票／基金、儲蓄計劃"
         },
         {
           "pageId": "P2",
-          "order": "2",
+          "order": 2,
           "title": "理想資金效果",
           "visible": true,
           "description": "了解客人希望資金發揮的效果，四選一：保持靈活、希望資金增長、收息／現金流、為將來準備"
         },
         {
           "pageId": "P3",
-          "order": "3",
+          "order": 3,
           "title": "加入時間",
           "visible": true,
           "description": "輸入目前歲數、累積財富金額及銀行假設年息"

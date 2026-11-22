@@ -74,7 +74,7 @@ const purposeChoices=[
 const moneyHK=n=>"HK$ "+money(n);
 const officialEntry=(id,fallback)=>escapeText(officialContent.entries.find(r=>r[0]===id)?.[3]||fallback);
 const salesTitle=(id,fallback)=>{const current=officialContent.entries.find(r=>r[0]===id)?.[3],original=bundledData.content.entries.find(r=>r[0]===id)?.[3];return escapeText(current&&current!==original?current:fallback)};
-const showAge=year=>Number.isInteger(state.currentAge)?(state.currentAge+Number(year))+"歲":"—歲";
+const showAge=year=>Number.isInteger(state.currentAge)?(state.currentAge+Number(year))+"歲":"第 "+Number(year)+" 年";
 const yearValue=year=>Number(year);
 const bankForYear=year=>state.capital*Math.pow(1+state.bankRate/100,Number(year));
 const projectAt=(p,year)=>{const factor=exact(p,Number(year));return factor===null?null:state.capital*factor};
@@ -128,8 +128,10 @@ default:
  return titleBlock("P7",salesTitle("P7_TITLE","如果中途開始用呢？"),"選擇安排，再探索不同年齡的效果。")
   +withdrawalStartRail()
   +'<h3>探索年齡及保單年度</h3>'
+  +(state.currentAge===null?'<p class="withdrawal-age-prompt">尚未輸入目前歲數；以下先按保單年度顯示。可返回第 3 頁輸入歲數，便會顯示實際年齡。</p>':"")
   +ageRail("withdrawal",annualYears(),state.withdrawalYear,"data-withdraw-year")
-  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'—')+'</strong></div><div><span>累積已使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'—')+'</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(state.plan==='rollover'?projectAt(p,state.withdrawalYear):null)+'</strong></div></div>'
+  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'待核實')+'</strong></div><div><span>累積已使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'待核實')+'</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(projectAt(p,state.withdrawalYear))+'</strong></div></div>'
+  +(state.plan==='rollover'?'':'<p class="withdrawal-source-note">戶口價值按所選安排的官方來源結餘倍數計算；每年及累積提取金額仍需核實實際提取基數及產品條款，未有數據前不會估算。</p>')
   +'<p data-edit-paragraph="2"></p>';
 
 }

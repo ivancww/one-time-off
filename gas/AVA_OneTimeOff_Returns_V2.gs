@@ -17,7 +17,7 @@ var OTO_RETURNS_TABS_=[
  {id:'year7',sheet:'7year 6.5%',rate:0.065,startYear:7,rows:36},
  {id:'year9',sheet:'9year 7%',rate:0.07,startYear:9,rows:36},
  {id:'year11',sheet:'11year 8%',rate:0.08,startYear:11,rows:36},
- {id:'rollover',sheet:'自動滾存',rate:0,startYear:null,rows:24}
+ {id:'rollover',sheet:'自動滾存',rate:0,startYear:null,rows:28}
 ];
 function otoReturnsPayload_(){
  var book=SpreadsheetApp.openById(OTO_RETURNS_SPREADSHEET_ID_);
@@ -30,7 +30,7 @@ function otoReturnsPayload_(){
   var rows=values.slice(1).filter(function(row){return row.slice(0,3).some(function(v){return v!=='';});});
   if(rows.length!==meta.rows)throw new Error('Official returns row count invalid');
   var last=0,expectedYears=[];
-  if(meta.id==='rollover')expectedYears=[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,25,30,35,40,45,50,55,60];
+  if(meta.id==='rollover')expectedYears=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,25,30,35,40,45,50,55,60];
   else {for(var y=1;y<=20;y++)expectedYears.push(y);for(var y2=25;y2<=100;y2+=5)expectedYears.push(y2);}
   var balances=rows.map(function(row,i){
     var year=row[0],rate=row[1],multiple=row[2];

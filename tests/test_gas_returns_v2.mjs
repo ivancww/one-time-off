@@ -6,7 +6,7 @@ const snapshot=JSON.parse(readFileSync('data/official-snapshot.json','utf8'));
 const source=readFileSync('gas/AVA_OneTimeOff_Returns_V2.gs','utf8');
 const pages=new Map(snapshot.plans.map(p=>[p.sheet,[
  ['保單年度','每年提取百分比','結餘倍數'],
- ...p.balances.map(([year,factor])=>[year,p.rate,factor])
+ ...p.balances.map(([year,factor])=>[year,p.startYear!==null&&year<p.startYear?0:p.rate,factor])
 ]]));
 const context=vm.createContext({
  SpreadsheetApp:{openById(id){assert.equal(id,snapshot.sourceSpreadsheetId);return {getSheetByName(name){

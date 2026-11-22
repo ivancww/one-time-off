@@ -12,7 +12,8 @@ assert.match(updates, /function updateBlocked\(/, 'Mandatory updates must remain
 assert.match(updates, /function checkRelease\(/, 'Update checks must remain');
 assert.match(source, /Number\.isInteger\(state\.currentAge\)\?/, 'Only show exact age when known');
 assert.match(source, /"第 "\+Number\(year\)\+" 年"/, 'When missing age, use policy year instead of —歲');
-assert.match(source, /尚未輸入目前歲數/, 'P7 must explain missing age');
+assert.match(source, /請輸入目前歲數/, 'P7 must explain missing age');
+assert.match(source, /inputCard\("currentAge","目前歲數",state\.currentAge\)/, 'P7 must offer direct age entry');
 assert.match(source, /safeOutcome\(projectAt\(p,state\.withdrawalYear\)\)/, 'P7 must show existing source balance for each arrangement');
 assert.doesNotMatch(source, /state\.plan==='rollover'\?projectAt\(p,state\.withdrawalYear\):null/, 'Source balances must not be suppressed');
 assert.match(source, /每年可使用.*待核實/, 'Unknown annual payout must not be invented');

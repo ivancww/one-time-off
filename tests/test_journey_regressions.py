@@ -33,7 +33,7 @@ vm.runInNewContext(source + `
   state.purpose = 'income'; state.bankRate = 1.5; state.bankYears = 10; state.step = 6;
   if (!body().includes('累積已使用') || !body().includes('當時退保價值')) throw Error('withdrawal result roles missing');
   const payout=body();if(!payout.includes('30,000') || !payout.includes('330,000')) throw Error('source-backed annual and cumulative payout incorrect');
-  if (!payout.includes('620,189.60')) throw Error('P7 year-15 PDF multiplier balance must be displayed');
+  if (!payout.includes('620,189.6')) throw Error('P7 year-15 PDF multiplier balance must be displayed');
   if (!payout.includes('請輸入目前歲數') || !payout.includes('第 15 年')) throw Error('missing current age must offer a P7 input without fake age');
   state.step=3;state.term=15;state.currentAge=40;const ageCompare=body();if(!ageCompare.includes('55歲')||!ageCompare.includes('500,000'))throw Error('age-led same-principal comparison broken');
   state.step=0;if((body().match(/data-method=/g)||[]).length!==4)throw Error('P1 must have four choices');

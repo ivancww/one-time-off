@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {validDataset} from '../src/official-data.mjs';
 
 const spreadsheetId='1-QG1tnH0iTYLAzweJ6Gvj5JDN5p1YKIq9IONyvVIo4U';
-const plans=[['year1','1year 4%',0.04],['year3','3year 5%',0.05],['year5','5year 6%',0.06],['rollover','自動滾存',0]];
+const plans=[['year5','5year 6%',0.06,5],['year7','7year 6.5%',0.065,7],['year9','9year 7%',0.07,9],['year11','11year 8%',0.08,11],['rollover','自動滾存',0,null]];
 const header=['保單年度','每年提取百分比','結餘倍數'];
 const contentTabs=[['銷售流程',['頁面ID','顯示順序','頁面名稱','預設顯示','頁面用途']],['官方內容',['內容ID','頁面ID','類型','官方文字','備註']],['重要提示',['提示ID','適用頁面','類型','內容','核實狀態']]];
 
@@ -22,7 +22,7 @@ export async function readOfficialSheets({getAccessToken,fetcher=globalThis.fetc
  if(!response.ok)throw Error('Sheets read failed');
  const payload=await response.json();
  if(!Array.isArray(payload.valueRanges)||payload.valueRanges.length!==plans.length+contentTabs.length)throw Error('Invalid Sheets response');
- const result=plans.map(([id,sheet,rate],i)=>{
+ const result=plans.map(([id,sheet,rate,startYear],i)=>{
   const range=payload.valueRanges[i], rows=range?.values;
   // A1 range must name the expected tab, not merely occupy its index.
   const tab=range?.range?.match(/^'((?:[^']|'')+)'!|^([^!]+)!/);
@@ -31,7 +31,7 @@ export async function readOfficialSheets({getAccessToken,fetcher=globalThis.fetc
    if(!Array.isArray(row)||row.length!==3||row[1]!==rate)throw Error('Invalid Sheet row');
    return [row[0],row[2]];
   });
-  return {id,sheet,rate,balances};
+  return {id,sheet,rate,startYear,balances};
  });
  const contentRows=contentTabs.map(([sheet,headers],i)=>{
   const range=payload.valueRanges[plans.length+i],rows=range?.values;

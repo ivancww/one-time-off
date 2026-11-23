@@ -37,5 +37,5 @@ assert.deepEqual(data.plans.slice(0,4).map(p=>p.startYear),[5,7,9,11]);
 assert.deepEqual(data.plans.slice(0,4).map(p=>p.rate),[0.06,0.065,0.07,0.08]);
 assert(data.plans.slice(0,4).every(p=>p.balances.length===36));
 assert.match(source,/const cashflowAt=/,'Cashflows use source rates rather than a hidden estimate');
-assert.equal(release.version,'0.4.0');assert.equal(release.releaseId,'one-time-off@0.4.0');
+assert.equal(release.version,'0.4.1');assert.equal(release.releaseId,'one-time-off@0.4.1');
 console.log('P7 policy-year fallback, sourced account balance, unverified cashflows and removed History button: PASS');

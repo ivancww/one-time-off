@@ -31,9 +31,9 @@ await goTo(page,'1');assert.equal(await page.locator('[data-purpose]').count(),4
 await goTo(page,'3');await page.locator('[data-year="5"]').click();assert.equal(await page.locator('.p4-total-difference span').innerText(),'預期未來可能的差額');assert((await page.locator('.p4-total-difference strong').innerText()).startsWith('+HK$'));assert.equal(await page.locator('.p4-total-difference strong').evaluate(e=>getComputedStyle(e).color),'rgb(220, 38, 38)');assert(await page.locator('.p4-total-difference').evaluate(e=>e.previousElementSibling.classList.contains('p4-visual-story')));
 await goTo(page,'4');assert.equal(await page.locator('#arrangement, .calculation-note').count(),0);
 await goTo(page,'5');assert.equal(await page.locator('.annual-details, .calculation-note').count(),0);
-await goTo(page,'6');assert.deepEqual(await page.locator('[data-withdraw-start]').allTextContents(),['自動滾存（不提取）','第1年領取','第3年領取','第5年領取']);await page.locator('[data-withdraw-start="rollover"]').click();await page.locator('[data-withdraw-year="20"]').click();assert.equal(await page.locator('.withdrawal-result strong').nth(2).innerText(),'HK$ 1,625,000');
-for(const id of ['year1','year3','year5']){await page.locator('[data-withdraw-start="'+id+'"]').click();assert.deepEqual(await page.locator('.withdrawal-result strong').allTextContents(),['—','—','—'])}
-await goTo(page,'3');await page.locator('[data-year="5"]').click();await goTo(page,'6');await page.locator('[data-withdraw-start="year1"]').click();await goTo(page,'3');assert((await page.locator('.p4-total-difference strong').innerText()).startsWith('-HK$'));
+await goTo(page,'6');assert.deepEqual(await page.locator('[data-withdraw-start]').allTextContents(),['自動滾存（不提取）','第5年起領 6%','第7年起領 6.5%','第9年起領 7%','第11年起領 8%']);await page.locator('[data-withdraw-start="rollover"]').click();await page.locator('[data-withdraw-year="20"]').click();assert.equal(await page.locator('.withdrawal-result strong').nth(2).innerText(),'HK$ 1,625,000');
+for(const id of ['year5','year7','year9','year11']){await page.locator('[data-withdraw-start="'+id+'"]').click();const p=data.plans.find(x=>x.id===id);const cash=(500000*p.rate).toLocaleString('en-HK',{maximumFractionDigits:2});const val=(500000*Object.fromEntries(p.balances)[p.startYear]).toLocaleString('en-HK',{maximumFractionDigits:2});assert.deepEqual(await page.locator('.withdrawal-result strong').allTextContents(),['HK$ '+cash,'HK$ '+cash,'HK$ '+val])}
+await goTo(page,'3');await page.locator('[data-year="5"]').click();await goTo(page,'6');await page.locator('[data-withdraw-start="year5"]').click();await goTo(page,'3');assert((await page.locator('.p4-total-difference strong').innerText()).startsWith('-HK$'));
 for(const p of data.plans){
  await goTo(page,'6');await page.locator('[data-withdraw-start="'+p.id+'"]').click();await goTo(page,'5');
  assert.equal(await page.locator('[data-year]').count(),p.balances.length);
@@ -41,7 +41,7 @@ for(const p of data.plans){
 }
 await page.locator('[data-year="5"]').focus();await page.keyboard.press('Enter');assert.equal(await page.locator('[data-year="5"]').getAttribute('aria-selected'),'true');
 fs.mkdirSync('screenshots',{recursive:true});for(const [name,width,height] of [['ipad',768,1024],['honor-unfolded',800,1024],['mobile',375,812],['landscape',1024,768]]){
- await page.setViewportSize({width,height});await goTo(page,'6');await page.locator('[data-withdraw-start="year1"]').click();await goTo(page,'5');await page.locator('[data-year="20"]').click();
+ await page.setViewportSize({width,height});await goTo(page,'6');await page.locator('[data-withdraw-start="year5"]').click();await goTo(page,'5');await page.locator('[data-year="20"]').click();
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name);await page.screenshot({path:'screenshots/projection-'+name+'.png',fullPage:true});assert.equal(await page.locator('.annual-details').count(),0);
 }
 assert.deepEqual(errors,[]);console.log('All source-supported annual balances, age rails and device viewport simulation: PASS')}finally{await browser.close();server.close()}})().catch(e=>{console.error(e);server.close();process.exitCode=1});

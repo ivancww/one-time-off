@@ -41,7 +41,7 @@ export function createDocumentedGasReader({getAction,mapFinancial,mapContent,val
   const mappedFinancial=mapFinancial(financial.data,financial.schemaVersion),officialContent=mapContent(content.data);
   if(!object(mappedFinancial)||mappedFinancial.sourceSpreadsheetId!==sourceId||!Array.isArray(mappedFinancial.plans)||!validContent(officialContent))throw Error('Invalid mapped source data');
   const data={sourceSpreadsheetId:sourceId,plans:mappedFinancial.plans,content:officialContent};
-  if(!validDataset(data)||data.plans.reduce((n,p)=>n+p.balances.length,0)!==60)throw Error('Invalid mapped financial data');
+  if(!validDataset(data)||data.plans.reduce((n,p)=>n+p.balances.length,0)!==172)throw Error('Invalid mapped financial data');
   // A reviewed validator must verify bootstrap's nested structures agree with
   // the independent financial and content responses; absence is fail-closed.
   if(validateBootstrap(bootstrap,{financial,content,data})!==true)throw Error('Invalid bootstrap data');

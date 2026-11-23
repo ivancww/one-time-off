@@ -15,10 +15,10 @@ export function mapFinancial(data){
  if(!record(data)||data.sourceSpreadsheetId!==source)throw Error('Invalid financial source');
  const plans=uniqueById(data.plans,expected.map(x=>x[0])).map(p=>{
   if(!string(p.sheet)||typeof p.rate!=='number'||!Array.isArray(p.balances))throw Error('Invalid plan');
-  return {id:p.id,sheet:p.sheet,rate:p.rate,balances:p.balances.map(row=>{if(!Array.isArray(row)||row.length!==2)return null;return [row[0],row[1]]})};
+  return {id:p.id,sheet:p.sheet,rate:p.rate,startYear:p.startYear,balances:p.balances.map(row=>{if(!Array.isArray(row)||row.length!==2)return null;return [row[0],row[1]]})};
  });
  const mapped={sourceSpreadsheetId:source,plans};
- if(!validDataset(mapped)||plans.reduce((n,p)=>n+p.balances.length,0)!==60)throw Error('Invalid financial rows');
+ if(!validDataset(mapped)||plans.reduce((n,p)=>n+p.balances.length,0)!==172)throw Error('Invalid financial rows');
  return mapped;
 }
 export function mapContent(data){

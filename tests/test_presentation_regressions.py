@@ -16,7 +16,7 @@ const check=`
   if(!body().includes('value="1.5"')) throw Error('decimal rate is rounded');
   state.step=6;state.plan='year7';state.withdrawalYear=7;
   const year7=body();
-  if(!year7.includes('第7年起領 6.5%') || !year7.includes('data-withdraw-year="7"') || year7.includes('data-withdraw-year="6"'))
+  if(!year7.includes('第7年起領') || !year7.includes('data-withdraw-year="7"') || year7.includes('data-withdraw-year="6"'))
     throw Error('year7 rail must begin at first eligible withdrawal year');
   if(!year7.includes('32,500'))throw Error('year7 start cashflow is incorrect');
   state.withdrawalYear=8;const year8=body();

@@ -18,9 +18,10 @@ assert.match(source, /safeOutcome\(projectAt\(p,state\.withdrawalYear\)\)/, 'P7 
 assert.doesNotMatch(source, /state\.plan==='rollover'\?projectAt\(p,state\.withdrawalYear\):null/, 'Source balances must not be suppressed');
 assert.match(source, /每年可使用.*cashflowAt\(p,state\.withdrawalYear\)\.annual/, 'Yearly payout must use selected plan and base principal');
 assert.match(source, /累積已使用.*cashflowAt\(p,state\.withdrawalYear\)\.cumulative/, 'Cumulative cashflow must be derived from start year');
-assert.match(source, /按一次性本金/, 'Withdrawal base must be a one-time principal');
+assert.match(source, /const annual=state\.capital\*p\.rate/, 'Withdrawal base must remain one-time principal');
 assert.match(source, /withdrawalYears\(\)\[0\]/, 'Changing strategy must select its first eligible withdrawal year');
-assert.match(source, /年度開始累計/, 'Show first cashflow year and cumulative basis');
+assert.match(source, /cumulative:annual\*\(year-p\.startYear\+1\)/, 'Cumulative payout begins at source start year');
+assert.doesNotMatch(source, /每年領取按一次性本金/, 'P7 repeated result footnote removed');
 
 assert.match(source, /customerSummary\(\)/, 'A 5PAY-style customer summary is available after P7');
 assert.match(source, /showSummary=true;render\(\)/, 'P7 Next must open summary instead of exiting');
@@ -37,5 +38,5 @@ assert.deepEqual(data.plans.slice(0,4).map(p=>p.startYear),[5,7,9,11]);
 assert.deepEqual(data.plans.slice(0,4).map(p=>p.rate),[0.06,0.065,0.07,0.08]);
 assert(data.plans.slice(0,4).every(p=>p.balances.length===36));
 assert.match(source,/const cashflowAt=/,'Cashflows use source rates rather than a hidden estimate');
-assert.equal(release.version,'0.4.0');assert.equal(release.releaseId,'one-time-off@0.4.0');
+assert.equal(release.version,'0.4.1');assert.equal(release.releaseId,'one-time-off@0.4.1');
 console.log('P7 policy-year fallback, sourced account balance, unverified cashflows and removed History button: PASS');

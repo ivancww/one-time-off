@@ -36,7 +36,7 @@ const money=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:2});
 const decimal=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:6});
 const multiplierText=n=>Number(n).toLocaleString("en-HK",{maximumFractionDigits:15});
 // A tab name is a source identifier, not confirmation of withdrawal timing.
-const planLabel=p=>p.id==="rollover"?"自動滾存（不提取）":"第"+p.startYear+"年開始每年提取本金"+decimal(p.rate*100)+"%";
+const planLabel=p=>p.id==="rollover"?"自動滾存":"第"+p.startYear+"年開始每年提取本金"+decimal(p.rate*100)+"%";
 const plan=id=>data.plans.find(p=>p.id===id);
 const exact=(p,year)=>p.balances.find(r=>r[0]===year)?.[1]??null;
 function validateSnapshot(snapshot){
@@ -83,8 +83,8 @@ const comparison=(year)=>{const bank=bankForYear(year),saving=projectAt(plan(sta
 const titleBlock=(code,title,subtitle)=>'<div class="flow-context"><div class="eyebrow">'+code+' · 對話進行中</div><h1>'+title+'</h1><p>'+subtitle+'</p></div>';
 const optionCards=(items,field,icon)=>'<div class="conversation-grid">'+items.map(([id,name,desc])=>'<button type="button" class="ava-card ava-card--interactive" data-'+field+'="'+id+'" aria-pressed="'+(state[field]===id)+'"><span class="card-icon" aria-hidden="true">'+icon+'</span><span><strong>'+escapeText(name)+'</strong><small>'+escapeText(desc)+'</small></span></button>').join('')+'</div>';
 const ageRail=(key,items,selected,attribute="data-year")=>'<div class="time-bar-card timeline-rail-card"><div class="time-bar-heading"><span>向左右探索'+(key==="start"?"開始使用年齡":"年齡")+'</span><span>左右滑動查看更多</span></div><div class="timeline-rail" role="listbox" aria-label="年齡和保單年度">'+items.map(year=>'<button type="button" role="option" class="timeline-rail__item'+(Number(year)===Number(selected)?" is-selected":"")+'" '+attribute+'="'+year+'" aria-selected="'+(Number(year)===Number(selected))+'"><strong>'+showAge(year)+'</strong><small>第 '+year+' 年'+(key==="start"?"開始":"")+'</small></button>').join('')+'</div></div>';
-const arrangementOptions=[["rollover","自動滾存（不提取）"],["year5","第5年起領 6%"],["year7","第7年起領 6.5%"],["year9","第9年起領 7%"],["year11","第11年起領 8%"]];
-const withdrawalStartRail=()=>'<div class="time-bar-card timeline-rail-card"><h3>選擇回報安排</h3><div class="timeline-rail" role="listbox" aria-label="選擇回報安排">'+arrangementOptions.map(([id,label])=>'<button type="button" role="option" class="timeline-rail__item'+(state.plan===id?' is-selected':'')+'" data-withdraw-start="'+id+'" aria-selected="'+(state.plan===id)+'"><strong>'+label+'</strong></button>').join('')+'</div></div>';
+const arrangementOptions=[["rollover","自動滾存"],["year5","第5年起領"],["year7","第7年起領"],["year9","第9年起領"],["year11","第11年起領"]];
+const withdrawalStartRail=()=>'<div class="time-bar-card timeline-rail-card withdrawal-plan-rail"><div class="timeline-rail" role="listbox" aria-label="選擇回報安排">'+arrangementOptions.map(([id,label])=>'<button type="button" role="option" class="timeline-rail__item'+(state.plan===id?' is-selected':'')+'" data-withdraw-start="'+id+'" aria-selected="'+(state.plan===id)+'"><strong>'+label+'</strong></button>').join('')+'</div></div>';
 const cardsCompare=(year)=>{const o=comparison(year);return '<div class="same-money"><span>同樣投入本金 · 第'+year+'年 · '+showAge(year)+'</span><strong>'+moneyHK(state.capital)+'</strong></div><div class="p4-simple-outcomes" data-comparison-year="'+year+'"><div class="p4-simple-outcome"><span>維持銀行存款 · 假設</span><strong>'+moneyHK(o.bank)+'</strong></div><div class="p4-simple-outcome p4-simple-outcome--saving"><span>One-Time-Off 結餘</span><strong>'+safeOutcome(o.saving)+'</strong></div></div>'};
 const comparisonBars=(year)=>{const o=comparison(year),den=Math.max(o.bank,o.saving||0,1);const bar=(title,value,kind)=>'<div class="p4-bar-title"><strong>'+title+'</strong><strong>'+safeOutcome(value)+'</strong></div><div class="p4-colored-bar"><span class="p4-color-'+kind+'" style="width:'+(value===null?0:Math.max(0,Math.min(100,value/den*100)))+'%"></span></div>';const signed=o.diff===null?'—':(o.diff<0?'-':'+')+'HK$'+money(Math.abs(o.diff));return '<div class="p4-visual-story"><h3>同一筆錢，不同安排</h3>'+bar("維持銀行存款",o.bank,"bank")+bar("One-Time-Off 結餘",o.saving,"saving")+'</div><div class="p4-total-difference"><span>預期未來可能的差額</span><strong>'+signed+'</strong></div>'};
 const annualYears=()=>plan(state.plan).balances.map(r=>r[0]);
@@ -155,7 +155,6 @@ default:
   +(state.currentAge===null?'<div class="withdrawal-age-prompt"><p>請輸入目前歲數，以查看對應年齡；未填時先顯示保單年度。</p>'+inputCard("currentAge","目前歲數",state.currentAge)+'</div>':"")
   +ageRail("withdrawal",withdrawalYears(),state.withdrawalYear,"data-withdraw-year")
   +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>'+moneyHK(cashflowAt(p,state.withdrawalYear).annual)+'</strong></div><div><span>累積已使用</span><strong>'+moneyHK(cashflowAt(p,state.withdrawalYear).cumulative)+'</strong></div><div><span>當時退保價值</span><strong>'+safeOutcome(projectAt(p,state.withdrawalYear))+'</strong></div></div>'
-  +(state.plan==='rollover'?'':'<p class="withdrawal-source-note">每年領取按一次性本金 × '+decimal(p.rate*100)+'% 計算，從第 '+p.startYear+' 保單年度開始累計；退保價值依據該方案的文件來源結餘倍數，屬預期非保證金額。</p>')
   +'<p data-edit-paragraph="2"></p>';
 
 }

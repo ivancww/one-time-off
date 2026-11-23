@@ -280,3 +280,7 @@ body.ava-front .panel.ava-front__content { width:100%; min-width:0; }
 .ava-front .customer-summary__item--accent{border-color:var(--ava-color-primary)}
 @media(max-width:640px){.ava-front .customer-summary__grid{grid-template-columns:1fr}}
 @media print{.ava-front__header,.flow-progress,.flow-backbar,.customer-summary .actions,.technical-status{display:none!important}.customer-summary__grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+/* P7 one-line plan labels, without affecting the age-year rail. */
+.ava-front .withdrawal-plan-rail .timeline-rail__item{flex:0 0 auto;min-width:116px;min-height:76px;padding:10px 14px}
+.ava-front .withdrawal-plan-rail .timeline-rail__item strong{font-size:clamp(15px,1.7vw,18px);white-space:nowrap;line-height:1.25}

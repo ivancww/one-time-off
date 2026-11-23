@@ -16,7 +16,7 @@ const $=s=>document.querySelector(s);
 const userPages=[0,1,2,3,4,5,6], userKeys=["introNote","summaryNote"];
 const blankUser=()=>({introNote:"",summaryNote:"",titles:Array(7).fill(""),paragraphs:Array(3).fill(""),customPages:[],deletedPages:[]});
 const cloneUser=value=>JSON.parse(JSON.stringify(value));
-let customPageId=null, previewUser=false;
+let customPageId=null, previewUser=false, showSummary=false;
 let userSaved=blankUser(), userDraft=cloneUser(userSaved), userReady=false, userError="", userDirty=false, userSaving=false;
 const escapeText=value=>String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function validLegacyUserData(value){return !!value && typeof value==="object" && !Array.isArray(value) && Object.keys(value).sort().join(",")==="introNote,summaryNote" && userKeys.every(k=>typeof value[k]==="string" && value[k].length<=2000)}
@@ -74,7 +74,7 @@ const purposeChoices=[
 const moneyHK=n=>"HK$ "+money(n);
 const officialEntry=(id,fallback)=>escapeText(officialContent.entries.find(r=>r[0]===id)?.[3]||fallback);
 const salesTitle=(id,fallback)=>{const current=officialContent.entries.find(r=>r[0]===id)?.[3],original=bundledData.content.entries.find(r=>r[0]===id)?.[3];return escapeText(current&&current!==original?current:fallback)};
-const showAge=year=>Number.isInteger(state.currentAge)?(state.currentAge+Number(year))+"歲":"—歲";
+const showAge=year=>Number.isInteger(state.currentAge)?(state.currentAge+Number(year))+"歲":"第 "+Number(year)+" 年";
 const yearValue=year=>Number(year);
 const bankForYear=year=>state.capital*Math.pow(1+state.bankRate/100,Number(year));
 const projectAt=(p,year)=>{const factor=exact(p,Number(year));return factor===null?null:state.capital*factor};
@@ -88,6 +88,28 @@ const withdrawalStartRail=()=>'<div class="time-bar-card timeline-rail-card"><h3
 const cardsCompare=(year)=>{const o=comparison(year);return '<div class="same-money"><span>同樣投入本金 · 第'+year+'年 · '+showAge(year)+'</span><strong>'+moneyHK(state.capital)+'</strong></div><div class="p4-simple-outcomes" data-comparison-year="'+year+'"><div class="p4-simple-outcome"><span>維持銀行存款 · 假設</span><strong>'+moneyHK(o.bank)+'</strong></div><div class="p4-simple-outcome p4-simple-outcome--saving"><span>One-Time-Off 結餘</span><strong>'+safeOutcome(o.saving)+'</strong></div></div>'};
 const comparisonBars=(year)=>{const o=comparison(year),den=Math.max(o.bank,o.saving||0,1);const bar=(title,value,kind)=>'<div class="p4-bar-title"><strong>'+title+'</strong><strong>'+safeOutcome(value)+'</strong></div><div class="p4-colored-bar"><span class="p4-color-'+kind+'" style="width:'+(value===null?0:Math.max(0,Math.min(100,value/den*100)))+'%"></span></div>';const signed=o.diff===null?'—':(o.diff<0?'-':'+')+'HK$'+money(Math.abs(o.diff));return '<div class="p4-visual-story"><h3>同一筆錢，不同安排</h3>'+bar("維持銀行存款",o.bank,"bank")+bar("One-Time-Off 結餘",o.saving,"saving")+'</div><div class="p4-total-difference"><span>預期未來可能的差額</span><strong>'+signed+'</strong></div>'};
 const annualYears=()=>plan(state.plan).balances.map(r=>r[0]);
+
+// 5PAY-style customer summary is a presentation state after P7, not an
+// additional Official data page; it never changes the seven-page Sheet contract.
+function customerSummary(){
+ const p=plan(state.plan),year=state.withdrawalYear,account=projectAt(p,year);
+ const method=methodChoices.find(x=>x[0]===state.method)?.[1]||"未選擇";
+ const purpose=purposeChoices.find(x=>x[0]===state.purpose)?.[1]||"未選擇";
+ const values=[
+  ["目前安排",escapeText(method)],
+  ["今次一次性投入",moneyHK(state.capital)],
+  ["選擇回報安排",escapeText(arrangementOptions.find(x=>x[0]===state.plan)?.[1]||p.sheet)],
+  ["探索時間",showAge(year)+" · 第 "+year+" 年"],
+  ["預計保單結餘",safeOutcome(account)],
+  ["每年可使用",state.plan==="rollover"?moneyHK(0):"待核實"],
+  ["累積已使用",state.plan==="rollover"?moneyHK(0):"待核實"]
+ ];
+ return '<section class="customer-summary" data-ava-mode="presentation"><div class="flow-context"><div class="eyebrow">總結 · 客戶展示</div><h1>現有安排 ＋ 一次性儲蓄規劃</h1><p>根據今次選擇，整理投入、時間同預計保單結餘。</p></div>'
+ +'<div class="customer-summary__grid">'+values.map(([label,value],i)=>'<div class="ava-card customer-summary__item'+(i===4?' customer-summary__item--accent':'')+'"><span>'+label+'</span><strong>'+value+'</strong></div>').join('')+'</div>'
+ +'<p class="withdrawal-source-note">目標：'+escapeText(purpose)+'。保單結餘根據 '+escapeText(p.sheet)+' 所提供嘅第 '+year+' 年結餘倍數計算。資料為非即時官方資料快照，並非保證收益。提取金額、提取基數及累積已使用金額未有完整核實資料，不作估算。</p>'
+ +'<div class="actions ava-front__actions"><button type="button" class="primary ava-button ava-button--primary" id="print-summary">列印／儲存 PDF</button><button type="button" class="secondary ava-button ava-button--secondary" id="back-to-p7">返回對話</button></div></section>';
+}
+
 const inputCard=(id,label,value)=>'<label class="ava-label" for="'+id+'">'+label+'</label><div class="money-input">'+(id==="capital"?'<span>HK$</span>':"")+'<input id="'+id+'" inputmode="'+(id==="currentAge"?"numeric":"decimal")+'" type="text" value="'+(value==null?"":decimal(value))+'" placeholder="'+(id==="currentAge"?"例如 40":id==="capital"?"例如 500000":"例如 1.5")+'">'+(id==="bankRate"?'<span>%</span>':"")+'</div>';
 function bodyRaw(){
 const p=plan(state.plan),year=state.term, projected=projectAt(p,year);
@@ -128,8 +150,10 @@ default:
  return titleBlock("P7",salesTitle("P7_TITLE","如果中途開始用呢？"),"選擇安排，再探索不同年齡的效果。")
   +withdrawalStartRail()
   +'<h3>探索年齡及保單年度</h3>'
+  +(state.currentAge===null?'<div class="withdrawal-age-prompt"><p>請輸入目前歲數，以查看對應年齡；未填時先顯示保單年度。</p>'+inputCard("currentAge","目前歲數",state.currentAge)+'</div>':"")
   +ageRail("withdrawal",annualYears(),state.withdrawalYear,"data-withdraw-year")
-  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'—')+'</strong></div><div><span>累積已使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'—')+'</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(state.plan==='rollover'?projectAt(p,state.withdrawalYear):null)+'</strong></div></div>'
+  +'<div class="withdrawal-result"><div><span>每年可使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'待核實')+'</strong></div><div><span>累積已使用</span><strong>'+(state.plan==='rollover'?moneyHK(0):'待核實')+'</strong></div><div><span>當時戶口價值</span><strong>'+safeOutcome(projectAt(p,state.withdrawalYear))+'</strong></div></div>'
+  +(state.plan==='rollover'?'':'<p class="withdrawal-source-note">戶口價值按所選安排的官方來源結餘倍數計算；每年及累積提取金額仍需核實實際提取基數及產品條款，未有數據前不會估算。</p>')
   +'<p data-edit-paragraph="2"></p>';
 
 }
@@ -187,6 +211,16 @@ if(!snapshotValid){$("#mode").textContent="資料不可用";$("#flow-progress").
 if(entry==="user" && !userReady){$("#mode").textContent="個人編輯";$("#flow-progress").textContent="";$("#app").innerHTML='<h1>個人編輯不可用</h1><p>無法讀取本機資料；請檢查瀏覽器儲存設定。</p><a href="./">返回銷售展示</a>';return}
 
 updateSourceDisplay();
+if(showSummary){
+ $("#mode").textContent="總結 · 客戶展示";
+ $("#flow-progress").textContent="總結 · 客戶展示";
+ $("#back").disabled=false;
+ $("#back").onclick=()=>{showSummary=false;render()};
+ $("#app").innerHTML=customerSummary();
+ $("#back-to-p7").onclick=()=>{showSummary=false;render()};
+ $("#print-summary").onclick=()=>window.print();
+ return;
+}
 $("#mode").textContent=routeEntry==="user"&&previewUser?"預覽草稿 · 本機資料":entry==="user"?"個人編輯 · 本機資料":"";
 const activeUser=routeEntry==="user"?userDraft:userSaved;
 const flow=[];for(let i=0;i<7;i++){flow.push({key:String(i),label:SALES_PAGE_NAMES[i]});activeUser.customPages.filter(p=>p.after===i&&(entry==="user"||p.visible)).forEach(p=>flow.push({key:p.id,label:p.title||"自訂頁"}))}
@@ -198,8 +232,8 @@ let renderedBody;if(custom){renderedBody=entry==="user"?'<label for="custom-titl
  renderedBody=renderedBody.replace(/<p data-edit-paragraph="(\d)">([^<]*)<\/p>/g,(_,index,original)=>{const chosen=activeUser.paragraphs[Number(index)]?escapeText(activeUser.paragraphs[Number(index)]):original;return entry==="user"?'<p class="inline-edit" data-paragraph="'+index+'" id="paragraph-'+index+'" contenteditable="plaintext-only" role="textbox" aria-label="編輯本段說明" aria-multiline="true">'+chosen+'</p>':activeUser.paragraphs[Number(index)]?'<p>'+chosen+'</p>':''});
 }
 $("#back").disabled=at===0;
-$("#app").innerHTML=renderedBody+userNote()+(entry==="user"?'<div class="user-actions"><p role="status" id="user-status">'+escapeText(userError)+'</p><button id="preview-user" class="secondary">預覽草稿</button> <button id="add-page" class="secondary">新增自訂頁</button> <button id="restore-page" class="secondary" '+(userDraft.deletedPages.length?'':'disabled')+'>還原已刪頁面</button> <button id="save-user" class="primary">儲存至本機</button> <button id="cancel-user" class="secondary">取消修改</button> <button id="export-user" class="secondary">匯出已儲存內容</button> <label for="import-user">匯入個人內容（先作草稿）</label><input id="import-user" type="file" accept="application/json,.json"><p class="note">'+escapeText(disclosure("OFFICIAL_USER"))+' 請勿輸入客戶個人資料。</p></div>':'')+(routeEntry==="user"&&previewUser?'<p id="user-status" role="status">'+escapeText(userError)+'</p><button id="exit-preview" class="secondary">返回編輯</button> <button id="save-preview" class="primary">儲存至本機</button>':'')+'<div class="actions ava-front__actions"><button class="primary ava-button ava-button--primary" id="next" '+(at===flow.length-1?"disabled":"")+'>下一步</button></div>';
-function go(key){if(!validateCurrent())return;if(/^u-/.test(key)){customPageId=key}else{customPageId=null;state.step=Number(key)}render()}
+$("#app").innerHTML=renderedBody+userNote()+(entry==="user"?'<div class="user-actions"><p role="status" id="user-status">'+escapeText(userError)+'</p><button id="preview-user" class="secondary">預覽草稿</button> <button id="add-page" class="secondary">新增自訂頁</button> <button id="restore-page" class="secondary" '+(userDraft.deletedPages.length?'':'disabled')+'>還原已刪頁面</button> <button id="save-user" class="primary">儲存至本機</button> <button id="cancel-user" class="secondary">取消修改</button> <button id="export-user" class="secondary">匯出已儲存內容</button> <label for="import-user">匯入個人內容（先作草稿）</label><input id="import-user" type="file" accept="application/json,.json"><p class="note">'+escapeText(disclosure("OFFICIAL_USER"))+' 請勿輸入客戶個人資料。</p></div>':'')+(routeEntry==="user"&&previewUser?'<p id="user-status" role="status">'+escapeText(userError)+'</p><button id="exit-preview" class="secondary">返回編輯</button> <button id="save-preview" class="primary">儲存至本機</button>':'')+'<div class="actions ava-front__actions"><button type="button" class="primary ava-button ava-button--primary" id="next">'+("下一步")+'</button></div>';
+function go(key){if(!validateCurrent())return;showSummary=false;if(/^u-/.test(key)){customPageId=key}else{customPageId=null;state.step=Number(key)}render()}
 
 document.querySelectorAll("[data-method]").forEach(b=>b.onclick=()=>{state.method=b.dataset.method;go("1")});
 document.querySelectorAll("[data-purpose]").forEach(b=>b.onclick=()=>{state.purpose=b.dataset.purpose;go("2")});
@@ -209,7 +243,7 @@ document.querySelectorAll("[data-year]").forEach(b=>b.onclick=()=>{state.term=Nu
 document.querySelectorAll("[data-withdraw-start]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.withdrawStart;render();document.querySelector(`[data-withdraw-start="${state.plan}"]`)?.focus()});
 document.querySelectorAll("[data-withdraw-year]").forEach(b=>b.onclick=()=>{state.withdrawalYear=Number(b.dataset.withdrawYear);render();document.querySelector(`[data-withdraw-year="${state.withdrawalYear}"]`)?.focus()});
 document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{state.plan=b.dataset.choice;render()});
-$("#back").onclick=()=>{if(at>0)go(flow[at-1].key)};$("#next").onclick=()=>{if(at<flow.length-1)go(flow[at+1].key)};
+$("#back").onclick=()=>{if(at>0)go(flow[at-1].key)};$("#next").onclick=()=>{if(at<flow.length-1)go(flow[at+1].key);else if(validateCurrent()){showSummary=true;render()}};
 async function saveUserDraft(){if(userSaving)return;userSaving=true;const snapshot=cloneUser(userDraft);try{await writeUserData(snapshot);userSaved=snapshot;userDirty=userChanged();userError=userDirty?"已儲存較早版本，較新的修改仍未儲存。":"已儲存並核對本機資料。"}catch(e){userError="儲存失敗，草稿仍保留；請重試。"}finally{userSaving=false}render();return !userDirty && !userError.includes("儲存失敗")}
 if(typeof window!=="undefined")window.__avaSaveUserDraft=entry==="user"?saveUserDraft:null;
 if(entry==="user"){
@@ -228,7 +262,7 @@ if(entry==="user"){
 const savePreview=$("#save-preview");if(savePreview)savePreview.onclick=saveUserDraft;
 const exitPreview=$("#exit-preview");if(exitPreview)exitPreview.onclick=()=>{previewUser=false;render()};
 const cap=$("#capital");if(cap)bindNumber(cap,"capital",1,1000000000000,2);
-const age=$("#currentAge");if(age)age.addEventListener("input",()=>{const raw=age.value.trim();const valid=/^\d{1,3}$/.test(raw)&&Number(raw)>=0&&Number(raw)<=120;age.setCustomValidity(valid?"":"請輸入 0 至 120 歲的整數。");age.setAttribute("aria-invalid",String(!valid));if(valid)state.currentAge=Number(raw);});
+const age=$("#currentAge");if(age)age.addEventListener("input",()=>{const raw=age.value.trim();const valid=/^\d{1,3}$/.test(raw)&&Number(raw)>=0&&Number(raw)<=120;age.setCustomValidity(valid?"":"請輸入 0 至 120 歲的整數。");age.setAttribute("aria-invalid",String(!valid));if(valid)state.currentAge=Number(raw);});if(age && state.step===6)age.addEventListener("change",()=>{if(age.value.trim() && age.checkValidity())render()});
 const rate=$("#bankRate");if(rate)bindNumber(rate,"bankRate",0,100,4);
 const bankYears=$("#bankYears");if(bankYears)bindNumber(bankYears,"bankYears",1,100,0);
 const arrangement=$("#arrangement");if(arrangement)arrangement.onchange=()=>{state.plan=arrangement.value;render()};

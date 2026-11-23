@@ -32,7 +32,7 @@ await goTo(page,'3');await page.locator('[data-year="5"]').click();assert.equal(
 await goTo(page,'4');assert.equal(await page.locator('#arrangement, .calculation-note').count(),0);
 await goTo(page,'5');assert.equal(await page.locator('.annual-details, .calculation-note').count(),0);
 await goTo(page,'6');assert.deepEqual(await page.locator('[data-withdraw-start]').allTextContents(),['自動滾存（不提取）','第1年領取','第3年領取','第5年領取']);await page.locator('[data-withdraw-start="rollover"]').click();await page.locator('[data-withdraw-year="20"]').click();assert.equal(await page.locator('.withdrawal-result strong').nth(2).innerText(),'HK$ 1,625,000');
-for(const id of ['year1','year3','year5']){await page.locator('[data-withdraw-start="'+id+'"]').click();assert.deepEqual(await page.locator('.withdrawal-result strong').allTextContents(),['—','—','—'])}
+for(const id of ['year1','year3','year5']){const p=data.plans.find(x=>x.id===id);await page.locator('[data-withdraw-start="'+id+'"]').click();assert.deepEqual(await page.locator('.withdrawal-result strong').allTextContents(),['待核實','待核實','HK$ '+(500000*Object.fromEntries(p.balances)[20]).toLocaleString('en-HK',{maximumFractionDigits:2})])}
 await goTo(page,'3');await page.locator('[data-year="5"]').click();await goTo(page,'6');await page.locator('[data-withdraw-start="year1"]').click();await goTo(page,'3');assert((await page.locator('.p4-total-difference strong').innerText()).startsWith('-HK$'));
 for(const p of data.plans){
  await goTo(page,'6');await page.locator('[data-withdraw-start="'+p.id+'"]').click();await goTo(page,'5');

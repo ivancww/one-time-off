@@ -1,5 +1,5 @@
 // AVA One-Time-Off: App-owned release/version notice and safe Shell refresh.
-const APP_ID="one-time-off", CURRENT_VERSION="0.3.3";
+const APP_ID="one-time-off", CURRENT_VERSION="0.4.0";
 const observedKey="ava:one-time-off:observed-release", attemptKey="ava:one-time-off:reload-attempt";
 const manifestUrl=new URL("../app-release.json",import.meta.url);
 const safeStore={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};

@@ -16,9 +16,11 @@ assert.match(source, /請輸入目前歲數/, 'P7 must explain missing age');
 assert.match(source, /inputCard\("currentAge","目前歲數",state\.currentAge\)/, 'P7 must offer direct age entry');
 assert.match(source, /safeOutcome\(projectAt\(p,state\.withdrawalYear\)\)/, 'P7 must show existing source balance for each arrangement');
 assert.doesNotMatch(source, /state\.plan==='rollover'\?projectAt\(p,state\.withdrawalYear\):null/, 'Source balances must not be suppressed');
-assert.match(source, /每年可使用.*待核實/, 'Unknown annual payout must not be invented');
-assert.match(source, /累積已使用.*待核實/, 'Unknown accumulated payout must not be invented');
-assert.match(source, /實際提取基數及產品條款/, 'Explain why cash withdrawals are not calculated');
+assert.match(source, /每年可使用.*cashflowAt\(p,state\.withdrawalYear\)\.annual/, 'Yearly payout must use selected plan and base principal');
+assert.match(source, /累積已使用.*cashflowAt\(p,state\.withdrawalYear\)\.cumulative/, 'Cumulative cashflow must be derived from start year');
+assert.match(source, /按一次性本金/, 'Withdrawal base must be a one-time principal');
+assert.match(source, /withdrawalYears\(\)\[0\]/, 'Changing strategy must select its first eligible withdrawal year');
+assert.match(source, /年度開始累計/, 'Show first cashflow year and cumulative basis');
 
 assert.match(source, /customerSummary\(\)/, 'A 5PAY-style customer summary is available after P7');
 assert.match(source, /showSummary=true;render\(\)/, 'P7 Next must open summary instead of exiting');
@@ -30,5 +32,10 @@ assert.doesNotMatch(source, /else if\(validateCurrent\(\)\)returnLink\?\.click\(
 assert.match(source, /at<flow\.length-1\)go\(flow\[at\+1\]\.key\)/, 'Previous steps must retain Next navigation');
 
 for (const p of data.plans){assert(p.balances.length>0);assert(p.balances.every(x=>Number.isFinite(x[1])&&x[1]>0))}
-assert.equal(release.version,'0.3.3');assert.equal(release.releaseId,'one-time-off@0.3.3');
+assert.deepEqual(data.plans.map(p=>p.id),['year5','year7','year9','year11','rollover']);
+assert.deepEqual(data.plans.slice(0,4).map(p=>p.startYear),[5,7,9,11]);
+assert.deepEqual(data.plans.slice(0,4).map(p=>p.rate),[0.06,0.065,0.07,0.08]);
+assert(data.plans.slice(0,4).every(p=>p.balances.length===36));
+assert.match(source,/const cashflowAt=/,'Cashflows use source rates rather than a hidden estimate');
+assert.equal(release.version,'0.4.0');assert.equal(release.releaseId,'one-time-off@0.4.0');
 console.log('P7 policy-year fallback, sourced account balance, unverified cashflows and removed History button: PASS');

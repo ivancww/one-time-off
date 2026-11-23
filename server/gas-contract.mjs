@@ -18,7 +18,7 @@ export function createGasContractReader({getAction,parsers,now=()=>new Date()}={
   if(bootstrap?.sourceSpreadsheetId!==sourceId || !Array.isArray(bootstrap.pageIds) || bootstrap.pageIds.join(',')!=='P1,P2,P3,P4,P5,P6,P7')throw Error('Invalid bootstrap');
   if(!validContent(content)||!financial || financial.sourceSpreadsheetId!==sourceId || !Array.isArray(financial.plans))throw Error('Invalid source data');
   const data={sourceSpreadsheetId:sourceId,plans:financial.plans,content};
-  if(!validDataset(data)||data.plans.reduce((n,p)=>n+p.balances.length,0)!==60)throw Error('Invalid financial data');
+  if(!validDataset(data)||data.plans.reduce((n,p)=>n+p.balances.length,0)!==172)throw Error('Invalid financial data');
   return {schemaVersion:1,revision:before.revision,publishedAt:now().toISOString(),data};
  };
 }
